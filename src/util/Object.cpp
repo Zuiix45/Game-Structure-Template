@@ -2,13 +2,17 @@
 
 #include "../sys/Logger.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 Object::Object(float x, float y, float width, float height, float angle) 
             : x(x), y(y), width(width), height(height), angle(angle) {
 
-    topLeftcolor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    topRightcolor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    bottomLeftcolor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    bottomRightcolor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    topLeftcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    topRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    bottomLeftcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    bottomRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
 }
 
 float Object::getX() const { return x; }
@@ -73,17 +77,15 @@ void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
 glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
     // Normalize Values
     float normalizedX = (x * 2 + width - windowWidth) / windowWidth;
-    float normalizedY = (-y * 2 - width + windowHeight) / windowHeight;
+    float normalizedY = (-y * 2 - height + windowHeight) / windowHeight;
     float normalizedScaleX = width / (windowWidth/2.0f);
-    float normalizedScaleY = width / (windowHeight/2.0f);
+    float normalizedScaleY = height / (windowHeight/2.0f);
 
     // Create Transformation Matrix
     glm::mat4 model(1.0f);
-    model = glm::translate(model, glm::vec3(normalizedX, normalizedY, 0.0f));
-    model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::translate(model, glm::vec3(normalizedX, normalizedY, 1.0f));
     model = glm::scale(model, glm::vec3(normalizedScaleX, normalizedScaleY, 1.0f));
+    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
 
     return model;
 }

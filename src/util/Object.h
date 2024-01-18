@@ -4,8 +4,6 @@
 #include "gl/Buffers.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #define TOP_LEFT_CORNER 0
 #define TOP_RIGHT_CORNER 1

@@ -140,9 +140,13 @@ std::vector<std::string> files::split(const std::string& str, char delimiter) {
 }
 
 bool files::isDirExist(const std::string& path) {
-    return std::filesystem::is_directory(path);
+    return std::filesystem::is_directory(normalizePath(path));
+}
+
+bool files::isFileExist(const std::string& path) {
+    return std::filesystem::is_regular_file(normalizePath(path));
 }
 
 void files::createDir(const std::string& path) {
-    std::filesystem::create_directories(path);
+    std::filesystem::create_directories(normalizePath(path));
 }

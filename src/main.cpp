@@ -8,12 +8,14 @@
 #include "sys/Events.h"
 #include "sys/Handler.h"
 
+#include "util/Sprite.h"
+
 #define NAME "Game"
 #define VERSION "0.0.0"
 #define LICENSE "MIT LICENSE: <https://www.mit.edu/~amini/LICENSE.md>"
 
 bool debugMode;
-bool quitEarly;
+bool quitEarly; 
 
 /**
  * @brief Parse args (--help, --version, --debug)
@@ -32,7 +34,7 @@ int main(int argc, char* args[]) {
 
 	// Initialize application
   	Application::initApp(NAME, VERSION, debugMode, 800, 600);
-	handler::init();
+	handler::init("./data/images/placeholder.png");
 
 	// Starting point of main loop
 	while (!events::isQuitOccurred()) {

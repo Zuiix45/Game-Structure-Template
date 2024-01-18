@@ -78,6 +78,15 @@ namespace files {
      */
     bool isDirExist(const std::string& path);
 
+    
+    /**
+     * Checks if a file exists at the specified path.
+     * 
+     * @param path The path of the file to check.
+     * @return True if the file exists, false otherwise.
+     */
+    bool isFileExist(const std::string& path);
+
     /**
      * @brief Create directory
      *

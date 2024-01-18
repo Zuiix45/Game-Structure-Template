@@ -62,7 +62,7 @@ void Buffers::setVertexData(std::vector<Vertex> vertices, std::vector<unsigned i
         logError("Index count mismatch: " + std::to_string(indices.size()) + " != " + std::to_string(indexCount), 0);
         return;
     }
-
+    
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), &vertices[0]);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
 }
