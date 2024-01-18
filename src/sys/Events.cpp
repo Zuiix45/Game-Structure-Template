@@ -7,7 +7,7 @@
 #include <map>
 
 namespace {
-    bool quitOccured = false;
+    bool quitOccurred = false;
 
     bool dragging;
     glm::vec2 draggingStartCoords;
@@ -112,7 +112,7 @@ void events::fetchEvents() {
     while (SDL_PollEvent(&e) != 0) {
         switch (e.type) {
             case SDL_QUIT:
-                quitOccured = true;
+                quitOccurred = true;
                 break;
 
             case SDL_KEYDOWN:
@@ -144,8 +144,8 @@ void events::fetchEvents() {
     }
 }
 
-bool events::isQuitOccured() {
-    return quitOccured;
+bool events::isQuitOccurred() {
+    return quitOccurred;
 }
 
 /* Implementation of input namespace */

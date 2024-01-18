@@ -2,9 +2,14 @@
 
 #include "../../sys/Logger.h"
 
+#include "DefaultShaders.h"
+
 #include <glad/glad.h>
 
 Shaders::Shaders(std::string vertexShaderSource, std::string fragmentShaderSource) {
+    if (vertexShaderSource == "") vertexShaderSource = std::string(defaultVertexShaderSource);
+    if (fragmentShaderSource == "") fragmentShaderSource = std::string(defaultFragmentShaderSource);
+
     m_VertexShaderSource = vertexShaderSource;
     m_FragmentShaderSource = fragmentShaderSource;
 

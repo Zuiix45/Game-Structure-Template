@@ -264,7 +264,7 @@ namespace events {
     /**
      * @brief Check if SDL sent a quit event.
      */
-    bool isQuitOccured();
+    bool isQuitOccurred();
 }
 
 namespace input {

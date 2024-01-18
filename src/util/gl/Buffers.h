@@ -6,38 +6,58 @@
 #include <vector>
 
 struct Vertex {
-    glm::vec2 position;
+    glm::vec3 position;
     glm::vec4 color;
     glm::vec2 texCoord;
 };
 
 class Buffers {
 public:
-    Buffers();
+    /**
+     * @brief This class provides functionality for managing vertex and index buffers.
+     * It allows creating buffers with a specified number of vertices and indices.
+     * It also allows setting the vertex data and indices for every Instance.
+     * 
+     * @param vertexCount The number of vertices to allocate.
+     * @param indexCount The number of indices to allocate.
+     */
+    Buffers(int vertexCount, int indexCount);
 
+    /**
+     * @brief Delete All Buffer objects.
+     */
+    ~Buffers();
+
+    /**
+     * Binds the buffer object.
+     */
     void bind() const;
+
+    /**
+     * @brief Unbinds the buffer object.
+     *
+     * This function unbinds the buffer object, allowing other buffer objects to be bound in its place.
+     */
     void unbind() const;
 
+    /**
+     * Sets the vertex data and indices for the buffer.
+     * 
+     * @param vertices The vector of vertices to set.
+     * @param indices The vector of indices to set.
+     */
     void setVertexData(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+
+    /**
+     * @brief Draws the elements using the buffer data.
+     */
+    void drawElements() const;
 
 private:
     unsigned int m_vao;
     unsigned int m_vbo;
     unsigned int m_ebo;
-};
 
-/* Temp Class*/
-class Mesh {
-public:
-    Mesh(const char* vertexShaderSource = "", const char* fragmentShaderSource = "");
-
-    void draw() const;
-
-private:
-    Shaders* m_shaders;
-
-    Buffers* m_buffers;
-
-    std::vector<Vertex> m_vertices;
-    std::vector<unsigned int> m_indices;
+    int vertexCount;
+    int indexCount;
 };

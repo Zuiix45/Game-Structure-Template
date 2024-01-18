@@ -7,6 +7,9 @@
 
 #define WINDOW_FLAGS SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
 
+#define WINDOW_WIDTH Application::getFocusedWindow()->getWidth()
+#define WINDOW_HEIGHT Application::getFocusedWindow()->getHeight()
+
 namespace cursors {
     extern SDL_Cursor* defaultCursor;
     extern SDL_Cursor* sizeWE; // horizontal resize
