@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "sdl2",
+    "glm",
+    "freetype",
+    "stb",
+    "openal-soft",
+    "zlib"
+  ]
+}
