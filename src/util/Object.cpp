@@ -74,6 +74,15 @@ void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
     }
 }
 
+void Object::setAnimation(Animation* animation) {
+    if (animation->isLoadedSuccessfully())
+        this->animation = animation;
+}
+
+Animation* Object::getAnimation() const {
+    return animation;
+}
+
 glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
     // Normalize Values
     float normalizedX = (x * 2 + width - windowWidth) / windowWidth;
@@ -85,7 +94,7 @@ glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
     glm::mat4 model(1.0f);
     model = glm::translate(model, glm::vec3(normalizedX, normalizedY, 1.0f));
     model = glm::scale(model, glm::vec3(normalizedScaleX, normalizedScaleY, 1.0f));
-    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(-angle), glm::vec3(0.0f, 0.0f, 1.0f));
 
     return model;
 }
@@ -113,4 +122,16 @@ std::vector<unsigned int> Object::getIndices() const {
     };
 
     return indices;
+}
+
+void Object::show() {
+    visible = true;
+}
+
+void Object::hide() {
+    visible = false;
+}
+
+bool Object::isVisible() const {
+    return visible;
 }

@@ -4,6 +4,17 @@
 #include <vector>
 #include <map>
 
+struct Image {
+    unsigned char* data;
+    int width;
+    int height;
+    int nrChannels;
+    bool isLoaded;
+    std::string path;
+
+    void free();
+};
+
 /**
  * @brief Declarations for file operations.
  */
@@ -77,7 +88,6 @@ namespace files {
      * @return true if directory exists
      */
     bool isDirExist(const std::string& path);
-
     
     /**
      * Checks if a file exists at the specified path.
@@ -93,4 +103,13 @@ namespace files {
      * @param path the path of folder
      */
     void createDir(const std::string& path);
+
+    /**
+     * Loads an image from the specified path.
+     *
+     * @param path The path to the image file.
+     * @param flip Whether to flip the image vertically (default: true).
+     * @return The loaded image.
+     */
+    Image loadImage(const std::string& path, bool flip = true);
 }

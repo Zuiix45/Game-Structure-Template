@@ -9,6 +9,15 @@
 #include <cctype>
 #include <locale>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+void Image::free() {
+    stbi_image_free(data);
+}
+
+/////////////
+
 namespace {
     void splitTwice(std::vector<std::string> &vect, std::string data, char delimiter) {
         std::string parsed = data.substr(0, data.find(delimiter));
@@ -149,4 +158,33 @@ bool files::isFileExist(const std::string& path) {
 
 void files::createDir(const std::string& path) {
     std::filesystem::create_directories(normalizePath(path));
+}
+
+Image files::loadImage(const std::string& path, bool flip) {
+    Image image;
+
+    // Load image from file
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(flip);
+
+    std::string normalizedPath = files::normalizePath(path);
+    
+    unsigned char *data = stbi_load(normalizedPath.c_str(), &width, &height, &nrChannels, 0);
+
+    if (data) {
+        image.data = data;
+        image.width = width;
+        image.height = height;
+        image.nrChannels = nrChannels;
+        image.isLoaded = true;
+    }
+    
+    else {
+        logError("Failed to load image: " + normalizedPath, 0);
+        image.isLoaded = false;
+    }
+
+    image.path = normalizedPath;
+
+    return image;
 }

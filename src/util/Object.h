@@ -2,6 +2,7 @@
 
 #include "gl/Shaders.h"
 #include "gl/Buffers.h"
+#include "Sprite.h"
 
 #include <glm/glm.hpp>
 
@@ -58,6 +59,20 @@ public:
     void setColor(float r, float g, float b, float a = 1.0f, unsigned int corner = ALL_CORNERS);
 
     /**
+     * @brief Sets the Animation for the object.
+     * 
+     * @param animation A pointer to the Animation object.
+     */
+    void setAnimation(Animation* animation);
+
+    /**
+     * @brief Returns the Animation associated with the object.
+     * 
+     * @return Pointer to the Animation.
+     */
+    Animation* getAnimation() const;
+
+    /**
      * @brief This function calculates and returns the model matrix for the object based on its current position, rotation, and scale.
      * The model matrix is a glm::mat4 object that represents the transformation applied to the object in the world space.
      * 
@@ -82,6 +97,11 @@ public:
      */
     std::vector<unsigned int> getIndices() const;
 
+    void show();
+    void hide();
+
+    bool isVisible() const;
+
 private:
     float x, y, width, height, angle;
 
@@ -89,4 +109,8 @@ private:
     glm::vec4 topRightcolor;
     glm::vec4 bottomLeftcolor;
     glm::vec4 bottomRightcolor;
+
+    Animation* animation;
+
+    bool visible;
 };

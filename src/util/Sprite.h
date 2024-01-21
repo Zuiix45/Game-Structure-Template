@@ -1,47 +1,65 @@
 #pragma once
 
+#include "../sys/Timer.h"
+
 #include <vector>
 
 class Sprite {
 public:
     /**
      * @brief Represents a sprite object.
-     * 
-     * The Sprite class is used to create and manipulate sprite objects in a game or application.
-     * It provides functionality for loading and rendering textures, as well as flipping the sprite horizontally.
-     * 
-     * @param firstTexturePath The path to the first texture of the sprite.
-     * @param flip Whether to flip the sprite horizontally. Default is true.
-     */
-    Sprite(const char* firstTexturePath, bool flip = true);
-
-    /**
-     * @brief Adds a texture to the sprite.
-     * 
-     * @param path The path to the texture file.
-     * @param flip Whether to flip the texture vertically or not. Default is true.
-     */
-    void addTexture(const char* path, bool flip = true);
-
-    /**
-     * @brief Deletes the texture at the specified index.
      *
-     * @param index The index of the texture to delete.
+     * This class is used to create and manipulate sprite objects.
+     * Sprites can be loaded from an image file and flipped horizontally.
+     *
+     * @param imagePath The path to the image file used for the sprite.
+     * @param flip      Whether the sprite should be flipped horizontally.
      */
-    void deleteTexture(unsigned int index);
+    Sprite(const char* imagePath, bool flip = true);
+    ~Sprite();
 
     /**
-     * @brief Gets the number of textures used by the sprite.
+     * Activates the texture for rendering.
+     */
+    void activateTexture() const;
+
+    /**
+     * @brief Get the texture ID of the sprite.
      * 
-     * @return The number of textures used by the sprite.
+     * @return The texture ID of the sprite.
      */
-    int getTextureCount() const;
+    unsigned int getTextureID() const;
 
     /**
-     * Activates the textures for the sprite.
+     * @brief Checks if the sprite is loaded successfully.
+     * 
+     * @return true if the sprite is loaded successfully, false otherwise.
      */
-    void activateTextures() const;
+    bool isLoadedSuccessfully() const;
 
 private:
-    std::vector<unsigned int> textures;
+    unsigned int textureID;
+
+    bool isLoaded;
+};
+
+class Animation {
+public:
+    Animation(Sprite* frame);
+    Animation(std::vector<Sprite*> keyframes, int fps=60);
+
+    void step();
+
+    bool isLoadedSuccessfully() const;
+
+private:
+    std::vector<Sprite*> keyframes;
+
+    int fps;
+    int currentKeyframe;
+    double frameTime;
+
+    bool isLoaded;
+
+    unsigned int animTimerID;
 };

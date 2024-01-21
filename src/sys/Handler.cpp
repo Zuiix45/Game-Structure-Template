@@ -14,44 +14,15 @@ namespace {
     std::multimap<unsigned int, unsigned int> layers; // layer, id
     std::map<unsigned int, Object*> objectMap; // id, object
     std::map<unsigned int, Shaders*> shaderMap; // id, shaders
-    std::map<unsigned int, Sprite*> spriteMap; // id, sprite
-    std::map<std::string, std::string> imagePathMap; // name, path
+    std::map<std::string, Sprite*> savedSprites; // name, sprite
 
     Buffers* buffers;
-
-    std::string addTextureUniformsToShader(std::string shaderSource, int textureCount) {
-        std::string textureUniforms = "";
-        std::string applyTextures = "";
-
-        // create required lines to add shader source
-        for (int i = 0; i < textureCount; i++) {
-            textureUniforms += "uniform sampler2D u_Texture_" + std::to_string(i) + ";\n";
-            applyTextures += "texture(u_Texture_" + std::to_string(i) + ", v_TexCoord) * ";
-        }
-
-        int mainFuncPos = shaderSource.find("void main() {");
-        int outColorPos = shaderSource.find_last_of("FragColor");
-        
-        int nextNL = shaderSource.find("\n", outColorPos);
-        int prevNL = shaderSource.rfind("\n", outColorPos);
-
-        // delete FragColor line
-        shaderSource.erase(prevNL, nextNL - prevNL);
-
-        int nl = shaderSource.find("\n", mainFuncPos);
-
-        // insert new lines
-        shaderSource.insert(nl, "\n    FragColor = " + applyTextures + "v_Color;");
-        shaderSource.insert(mainFuncPos, textureUniforms + "\n");
-
-        return shaderSource;
-    }
 }
 
 void handler::init(const char* placeholderImagePath) {
     buffers = new Buffers(4, 6);
 
-    saveImagePath("placeholder", placeholderImagePath);
+    saveSprite("placeholder", placeholderImagePath);
 }
 
 unsigned int handler::createObject(unsigned int layer, Object* object) {
@@ -61,6 +32,8 @@ unsigned int handler::createObject(unsigned int layer, Object* object) {
 
     objectMap.insert(std::pair<unsigned int, Object*>(id, object));
     shaderMap.insert(std::pair<unsigned int, Shaders*>(id, new Shaders("", ""))); // use default shaders
+
+    object->setAnimation(new Animation(savedSprites["placeholder"]));
 
     return id;
 }
@@ -106,9 +79,11 @@ void handler::drawAllObjects(int windowWidth, int windowHeight) {
         Object* object = objectMap[it->second];
         Shaders* shaders = shaderMap[it->second];
 
-        // activate textures
-        if (spriteMap[it->second] != nullptr)
-            spriteMap[it->second]->activateTextures();
+        if (object->isVisible() == false)
+            continue;
+
+        // activate texture
+        object->getAnimation()->step();
 
         // set shader uniforms
         shaders->activate();
@@ -124,41 +99,13 @@ void handler::drawAllObjects(int windowWidth, int windowHeight) {
 
 void handler::changeShaders(unsigned int id, const char* vertexShaderSource, const char* fragmentShaderSource) {
     delete shaderMap[id];
-
-    std::string fragmentShaderSourceStr = std::string(fragmentShaderSource);
-    std::string vertexShaderSourceStr = std::string(vertexShaderSource);
-    fragmentShaderSourceStr = addTextureUniformsToShader(fragmentShaderSourceStr, spriteMap[id]->getTextureCount());
-
-    shaderMap[id] = new Shaders(vertexShaderSourceStr, fragmentShaderSourceStr);
+    shaderMap[id] = new Shaders(vertexShaderSource, fragmentShaderSource);
 }
 
-void handler::bindSpriteToObject(unsigned int id, Sprite* sprite) {
-    spriteMap[id] = sprite;
-    changeShaders(id, defaultVertexShaderSource, defaultFragmentShaderSource);
+void handler::saveSprite(const char* name, const char* path, bool flip) {
+    savedSprites.insert(std::pair<std::string, Sprite*>(name, new Sprite(path, flip)));
 }
 
-void handler::bindSpriteToObject(unsigned int id, const char* image_name, bool flip) {
-    bindSpriteToObject(id, new Sprite(getImagePath(image_name).c_str(), flip));
-}
-
-Sprite* handler::getSprite(unsigned int id) {
-    return spriteMap[id];
-}
-
-void handler::saveImagePath(const char* name, const char* path) {
-    if (!files::isFileExist(path)) {
-        logger::logError("Image file does not exist: " + std::string(path), 0);
-        return;
-    }
-
-    imagePathMap[std::string(name)] = files::normalizePath(path);
-}
-
-std::string handler::getImagePath(const char* name) {
-    if (imagePathMap.find(std::string(name)) == imagePathMap.end()) {
-        logger::logError("Image path not found: " + std::string(name), 0);
-        return imagePathMap["placeholder"];
-    }
-
-    return imagePathMap[name];
+Sprite* handler::getSprite(const char* name) {
+    return savedSprites[name];
 }

@@ -7,6 +7,7 @@
 #include "sys/Logger.h"
 #include "sys/Events.h"
 #include "sys/Handler.h"
+#include "sys/Physics.h"
 
 #include "util/Sprite.h"
 
@@ -35,6 +36,12 @@ int main(int argc, char* args[]) {
 	// Initialize application
   	Application::initApp(NAME, VERSION, debugMode, 800, 600);
 	handler::init("./data/images/placeholder.png");
+
+	unsigned int obj1 = handler::createObject(1, new Object(100, 100, 64, 64, 0));
+	unsigned int obj2 = handler::createObject(1, new Object(130, 130, 64, 64, 0));
+
+	handler::getObject(obj1)->setColor(200, 25, 67);
+	logInfo(std::to_string(physics::isColliding(100, 100, 64, 64, 130, 130, 64, 64)));
 
 	// Starting point of main loop
 	while (!events::isQuitOccurred()) {

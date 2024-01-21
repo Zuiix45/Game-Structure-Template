@@ -68,43 +68,19 @@ namespace handler {
     void changeShaders(unsigned int id, const char* vertexShaderSource = "", const char* fragmentShaderSource = "");
 
     /**
-     * @brief Binds a sprite to an object with the specified ID.
-     *
-     * @param id The ID of the object.
-     * @param sprite A pointer to the sprite to bind.
-     */
-    void bindSpriteToObject(unsigned int id, Sprite* sprite);
-
-    /**
-     * Binds a sprite to an object identified by its ID.
-     *
-     * @param id The ID of the object to bind the sprite to.
-     * @param image_name The name of the image path saved in the image path map.
-     * @param flip Whether to flip the sprite horizontally or not. Default is true.
-     */
-    void bindSpriteToObject(unsigned int id, const char* image_name, bool flip = true);
-
-    /**
-     * @brief Retrieves the sprite with the specified ID.
+     * @brief Saves a sprite to a file.
      * 
-     * @param id The ID of the sprite to retrieve.
-     * @return A pointer to the sprite with the specified ID, or nullptr if no sprite is found.
+     * @param name The name of the sprite.
+     * @param path The path where the sprite will be saved.
+     * @param flip Whether to flip the sprite vertically. Default is true.
      */
-    Sprite* getSprite(unsigned int id);
+    void saveSprite(const char* name, const char* path, bool flip = true);
 
     /**
-     * @brief Saves the image path into a map with the given name.
+     * @brief Retrieves a sprite with the specified name.
      * 
-     * @param name The name of the image.
-     * @param path The path of the image.
+     * @param name The name of the sprite to retrieve.
+     * @return A pointer to the sprite with the specified name, or nullptr if no sprite is found.
      */
-    void saveImagePath(const char* name, const char* path);
-
-    /**
-     * @brief Retrieves the path of the image with the specified name.
-     * 
-     * @param name The name of the image.
-     * @return The path of the image with the specified name, or an empty string if no image is found.
-     */
-    std::string getImagePath(const char* name);
+    Sprite* getSprite(const char* name);
 }
