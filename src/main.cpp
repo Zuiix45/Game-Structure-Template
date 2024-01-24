@@ -37,11 +37,14 @@ int main(int argc, char* args[]) {
   	Application::initApp(NAME, VERSION, debugMode, 800, 600);
 	handler::init("./data/images/placeholder.png");
 
-	unsigned int obj1 = handler::createObject(1, new Object(100, 100, 64, 64, 0));
+	unsigned int obj1 = handler::createObject(2, new Object(100, 100, 64, 64, 0));
 	unsigned int obj2 = handler::createObject(1, new Object(130, 130, 64, 64, 0));
 
 	handler::getObject(obj1)->setColor(200, 25, 67);
-	logInfo(std::to_string(physics::isColliding(100, 100, 64, 64, 130, 130, 64, 64)));
+	unsigned int obj1_hb = physics::createHitBox(handler::getObject(obj1)->getBounds());
+	unsigned int obj2_hb = physics::createHitBox(handler::getObject(obj2)->getBounds());
+	unsigned int collision = physics::listenCollisions(obj1_hb, obj2_hb);
+	physics::destroyHitBox(obj1_hb);
 
 	// Starting point of main loop
 	while (!events::isQuitOccurred()) {

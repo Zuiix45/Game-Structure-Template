@@ -5,6 +5,7 @@
 #include "Sprite.h"
 
 #include <glm/glm.hpp>
+#include <vector>
 
 #define TOP_LEFT_CORNER 0
 #define TOP_RIGHT_CORNER 1
@@ -24,8 +25,11 @@ public:
     float getY() const;
     float getWidth() const;
     float getHeight() const;
-
     float getAngle() const;
+
+    float* getBounds() const;
+
+    std::vector<unsigned int> getHitBoxIDs() const;
 
     /**
      * @brief Get the color of the object at the specified corner.
@@ -113,4 +117,6 @@ private:
     Animation* animation;
 
     bool visible;
+
+    std::vector<unsigned int> hitBoxIDs;
 };

@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "Files.h"
+#include "Physics.h"
 
 #include "../util/gl/Shaders.h"
 #include "../util/gl/Buffers.h"
@@ -28,7 +29,7 @@ void handler::init(const char* placeholderImagePath) {
 unsigned int handler::createObject(unsigned int layer, Object* object) {
     unsigned int id = objectMap.size();
 
-    layers.insert(std::pair<unsigned int, unsigned int>(layer, id));
+    layers.insert(std::pair<unsigned int, unsigned int>(layers.size(), id));
 
     objectMap.insert(std::pair<unsigned int, Object*>(id, object));
     shaderMap.insert(std::pair<unsigned int, Shaders*>(id, new Shaders("", ""))); // use default shaders
@@ -41,8 +42,12 @@ unsigned int handler::createObject(unsigned int layer, Object* object) {
 Object* handler::deleteObject(unsigned int id) {
     Object* object = objectMap[id];
 
+    for (int i = 0; i < object->getHitBoxIDs().size(); i++) {
+        physics::destroyHitBox(object->getHitBoxIDs()[i]);
+    }
+
     // delete id from layers
-    for (auto it = layers.begin(); it != layers.end(); it++) {
+    for (auto it = layers.end(); it != layers.begin(); it--) {
         if (it->second == id) {
             layers.erase(it);
             break;
@@ -75,6 +80,8 @@ void handler::setLayer(unsigned int id, unsigned int layer) {
 }
 
 void handler::drawAllObjects(int windowWidth, int windowHeight) {
+    physics::checkCollisions();
+
     for (auto it = layers.begin(); it != layers.end(); it++) {
         Object* object = objectMap[it->second];
         Shaders* shaders = shaderMap[it->second];

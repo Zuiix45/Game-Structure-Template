@@ -21,6 +21,21 @@ float Object::getWidth() const { return width; }
 float Object::getHeight() const { return height; }
 float Object::getAngle() const { return angle; }
 
+float* Object::getBounds() const {
+    float* bounds = new float[4];
+
+    bounds[0] = x;
+    bounds[1] = y;
+    bounds[2] = width;
+    bounds[3] = height;
+
+    return bounds;
+}
+
+std::vector<unsigned int> Object::getHitBoxIDs() const {
+    return hitBoxIDs;
+}
+
 glm::vec4 Object::getColor(unsigned int corner) const {
     switch (corner) {
         case TOP_LEFT_CORNER:
