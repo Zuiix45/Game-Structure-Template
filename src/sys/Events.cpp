@@ -340,15 +340,15 @@ void MouseWheel::update(Sint32 mouseX, Sint32 mouseY, float scrollX, float scrol
 TextInput::TextInput(std::string initialText) {
     text = initialText;
 
-    choosedStart = 0;
-    choosedEnd = 0;
+    selectedStart = 0;
+    selectedEnd = 0;
 }
 
 TextInput::TextInput() {
     text = "";
 
-    choosedStart = 0;
-    choosedEnd = 0;
+    selectedStart = 0;
+    selectedEnd = 0;
 }
 
 void TextInput::addChar(char _char, int index) {
@@ -371,29 +371,29 @@ void TextInput::removeLastChar() {
     text = text.substr(0, text.size()-1);
 }
 
-void TextInput::choose(int start, int end) {
-    choosedStart = start;
-    choosedEnd = end;
+void TextInput::select(int start, int end) {
+    selectedStart = start;
+    selectedEnd = end;
 }
 
 void TextInput::chooseAll() {
-    choosedStart = 0;
-    choosedEnd = text.size();
+    selectedStart = 0;
+    selectedEnd = text.size();
 }
 
-void TextInput::deleteChoosed() {
-    if (choosedEnd-choosedStart == 0) return;
+void TextInput::deleteSelected() {
+    if (selectedEnd-selectedStart == 0) return;
 
-    text = text.substr(0, choosedStart) + text.substr(choosedEnd, text.size()-choosedEnd-1);
+    text = text.substr(0, selectedStart) + text.substr(selectedEnd, text.size()-selectedEnd-1);
 
-    choosedStart = 0;
-    choosedEnd = 0;
+    selectedStart = 0;
+    selectedEnd = 0;
 }
 
 void TextInput::pasteFromClipboard(int index) {
-    if (choosedEnd-choosedStart != 0) {
-        index = choosedStart;
-        deleteChoosed();
+    if (selectedEnd-selectedStart != 0) {
+        index = selectedStart;
+        deleteSelected();
     }
 
     char* copyTxt = SDL_GetClipboardText();
@@ -402,9 +402,9 @@ void TextInput::pasteFromClipboard(int index) {
 }
 
 void TextInput::copyToClipboard() {
-    if (choosedEnd-choosedStart == 0) return;
+    if (selectedEnd-selectedStart == 0) return;
 
-    if (SDL_SetClipboardText(text.substr(choosedStart, choosedEnd-choosedStart).c_str()) < 0) logSDLError();
+    if (SDL_SetClipboardText(text.substr(selectedStart, selectedEnd-selectedStart).c_str()) < 0) logSDLError();
 }
 
 std::string TextInput::getText() {

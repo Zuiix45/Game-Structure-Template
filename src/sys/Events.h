@@ -217,7 +217,7 @@ public:
      * @param start The starting index of the selection.
      * @param end The ending index of the selection.
      */
-    void choose(int start, int end);
+    void select(int start, int end);
 
     /**
      * Selects the entire text.
@@ -227,7 +227,7 @@ public:
     /**
      * Deletes the currently selected text.
      */
-    void deleteChoosed();
+    void deleteSelected();
 
     /**
      * Pastes text from the clipboard at the specified index.
@@ -251,8 +251,8 @@ public:
 
 private:
     std::string text;
-    unsigned int choosedStart;
-    unsigned int choosedEnd;
+    unsigned int selectStart;
+    unsigned int selectEnd;
 };
 
 namespace events {
