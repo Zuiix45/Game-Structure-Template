@@ -152,11 +152,29 @@ bool events::isQuitOccurred() {
 
 Key input::getKeyInfo(SDL_Keycode keycode) {
     Key *key = keyMap[(int)keycode];
-
+    
     if (key != nullptr)
         return *key;
 
     return Key(0, 0, SDL_SCANCODE_UNKNOWN); // empty key for unhandled key code
+}
+
+Key input::getKeyInfo(SDL_Scancode scancode) {
+    Key *key = keyMap[(int)scancode];
+
+    if (key != nullptr)
+        return *key;
+
+    return Key(0, 0, SDL_SCANCODE_UNKNOWN); // empty key for unhandled scan code
+}
+
+bool input::isKeyDown(SDL_Keycode keycode) {
+    Key *key = keyMap[(int)keycode];
+
+    if (key != nullptr)
+        return key->isDown();
+
+    return false;
 }
 
 MouseButton input::getMouseButtonInfo(Uint8 button) {

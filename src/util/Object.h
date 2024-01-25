@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../sys/Timer.h"
+#include "../sys/Events.h"
 #include "gl/Shaders.h"
 #include "gl/Buffers.h"
 #include "Sprite.h"
@@ -19,7 +21,10 @@ public:
      * @brief This class provides a convenient way to represent objects in a 2D space.
      * It stores the object's position (x, y), size (width, height), and rotation angle(Degree).
      */
-    Object(float x, float y, float width, float height, float angle);
+    Object(float x = 0, float y = 0, float width = 0, float height = 0, float angle = 0);
+
+    virtual void update(float deltaTime) {};
+    virtual void events() {};
 
     float getX() const;
     float getY() const;
@@ -106,7 +111,7 @@ public:
 
     bool isVisible() const;
 
-private:
+protected:
     float x, y, width, height, angle;
 
     glm::vec4 topLeftcolor;
@@ -119,4 +124,6 @@ private:
     bool visible;
 
     std::vector<unsigned int> hitBoxIDs;
+
+    unsigned int startTimerID; // counts the time since the object was created
 };

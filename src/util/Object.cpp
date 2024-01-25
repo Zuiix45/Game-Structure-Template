@@ -13,6 +13,8 @@ Object::Object(float x, float y, float width, float height, float angle)
     topRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
     bottomLeftcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
     bottomRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+
+    startTimerID = timer::createTimer();
 }
 
 float Object::getX() const { return x; }
@@ -90,8 +92,10 @@ void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
 }
 
 void Object::setAnimation(Animation* animation) {
-    if (animation->isLoadedSuccessfully())
+    if (animation->isLoadedSuccessfully()) {
+        delete this->animation;
         this->animation = animation;
+    }
 }
 
 Animation* Object::getAnimation() const {

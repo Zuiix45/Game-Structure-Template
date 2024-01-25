@@ -46,7 +46,7 @@ private:
 class Animation {
 public:
     Animation(Sprite* frame);
-    Animation(std::vector<Sprite*> keyframes, int fps=60);
+    Animation(std::vector<Sprite*> keyframes, int fps=60, float speed=1.0f);
 
     void step();
 

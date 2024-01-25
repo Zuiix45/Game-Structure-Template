@@ -64,7 +64,7 @@ Animation::Animation(Sprite* frame) {
     keyframes.push_back(frame);
 }
 
-Animation::Animation(std::vector<Sprite*> keyframes, int fps) {
+Animation::Animation(std::vector<Sprite*> keyframes, int fps, float speed) {
     for (Sprite* keyframe : keyframes) {
         if (!keyframe->isLoadedSuccessfully()) {
             logError("Failed to load animation", 0);
@@ -79,7 +79,7 @@ Animation::Animation(std::vector<Sprite*> keyframes, int fps) {
 
     animTimerID = timer::createTimer();
 
-    frameTime = 1000.0f / fps;
+    frameTime = 1000.0f / fps / speed;
 }
 
 void Animation::step() {

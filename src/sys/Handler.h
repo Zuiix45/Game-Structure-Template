@@ -18,10 +18,11 @@ namespace handler {
      * @brief Creates an object in the specified layer.
      * 
      * @param layer The layer in which the object will be created.
+     * @param name The name of the object.
      * @param object A pointer to the object to be added to the object map.
      * @return The unique identifier of the created object.
      */
-    unsigned int createObject(unsigned int layer, Object* object);
+    unsigned int createObject(unsigned int layer, const char* name, Object* object);
 
     /**
      * @brief Deletes an object with the specified ID.
@@ -38,6 +39,24 @@ namespace handler {
      * @return A pointer to the object with the specified ID, or nullptr if no object is found.
      */
     Object* getObject(unsigned int id);
+
+    /**
+     * @brief Retrieves an Object by its name.
+     * 
+     * @param name The name of the Object to retrieve.
+     * @return A pointer to the Object if found, nullptr otherwise.
+     */
+    Object* getObject(const char* name);
+
+    /**
+     * @brief Retrieves the object ID associated with the given name.
+     *
+     * This function returns the unique identifier of an object based on its name.
+     *
+     * @param name The name of the object.
+     * @return The object ID if found, otherwise 0.
+     */
+    unsigned int getObjectID(const char* name);
 
     /**
      * @brief Sets the layer of a specific object.

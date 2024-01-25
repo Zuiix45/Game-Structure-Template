@@ -251,8 +251,8 @@ public:
 
 private:
     std::string text;
-    unsigned int selectStart;
-    unsigned int selectEnd;
+    unsigned int selectedStart;
+    unsigned int selectedEnd;
 };
 
 namespace events {
@@ -274,6 +274,21 @@ namespace input {
      * @return A Key object with information about the key.
      */
     Key getKeyInfo(SDL_Keycode keycode);
+
+    /**
+     * Gets information about a specific scancode.
+     * @param scancode The SDL scancode of the key.
+     * @return A Key object with information about the key.
+     */
+    Key getKeyInfo(SDL_Scancode scancode);
+
+    /**
+     * Checks if a specific key is currently being pressed down.
+     *
+     * @param keycode The SDL keycode of the key to check. I can also be a char.
+     * @return True if the key is currently being pressed down, false otherwise.
+     */
+    bool isKeyDown(SDL_Keycode keycode);
 
     /**
      * Gets information about a specific mouse button.
