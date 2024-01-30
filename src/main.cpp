@@ -37,7 +37,7 @@ int main(int argc, char* args[]) {
 
 	// Initialize application
   	Application::initApp(NAME, VERSION, debugMode, 800, 600);
-	handler::init("./data/images/placeholder.png");
+	handler::init("./data/images/");
 
 	// Initialize game
 	game::initSprites();

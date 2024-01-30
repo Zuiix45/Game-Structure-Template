@@ -2,12 +2,15 @@
 
 #include "../sys/Timer.h"
 #include "../sys/Events.h"
+
 #include "gl/Shaders.h"
 #include "gl/Buffers.h"
+
 #include "Sprite.h"
 
 #include <glm/glm.hpp>
 #include <map>
+#include <vector>
 
 #define TOP_LEFT_CORNER 0
 #define TOP_RIGHT_CORNER 1
@@ -106,62 +109,20 @@ public:
      */
     std::vector<unsigned int> getIndices() const;
 
-    bool isAnimationsClosed() const;
-
     void show();
     void hide();
 
     bool isVisible() const;
 
-    /**
-     * @brief Creates a hitbox with the specified parameters. Relative to the object's position.
-     * 
-     * @param name The name of the hitbox.
-     * @param x The x-coordinate of the hitbox's position on the object.
-     * @param y The y-coordinate of the hitbox's position on the object.
-     * @param width The width of the hitbox.
-     * @param height The height of the hitbox.
-     */
-    void createHitbox(std::string name, float x, float y, float width, float height);
-
-    /**
-     * @brief Updates the hitbox of an object.
-     * 
-     * @param name The name of the object.
-     * @param x The x-coordinate of the hitbox.
-     * @param y The y-coordinate of the hitbox.
-     * @param width The width of the hitbox.
-     * @param height The height of the hitbox.
-     */
-    void updateHitbox(std::string name, float x, float y, float width, float height);
-
-    /**
-     * @brief Removes a hitbox with the specified name.
-     * 
-     * @param name The name of the hitbox to remove.
-     */
-    void removeHitbox(std::string name);
-
-    /**
-     * @brief Returns the hitbox with the specified name.
-     * 
-     * @param name The name of the hitbox to return.
-     * @return float[4] The hitbox with the specified name.
-     */
-    float* getHitbox(std::string name) const;
-
 protected:
     float x, y, width, height, angle;
 
-    glm::vec4 topLeftcolor;
-    glm::vec4 topRightcolor;
-    glm::vec4 bottomLeftcolor;
-    glm::vec4 bottomRightcolor;
-
-    bool closeAnimations;
+    glm::vec4 topLeftColor;
+    glm::vec4 topRightColor;
+    glm::vec4 bottomLeftColor;
+    glm::vec4 bottomRightColor;
 
 private:
-    std::map<std::string, float*> hitboxes; // stores the hitboxes of the object
     unsigned int startTimerID; // counts the time since the object was created
 
     Animation* animation;

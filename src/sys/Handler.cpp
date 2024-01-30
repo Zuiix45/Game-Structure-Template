@@ -16,6 +16,7 @@ namespace {
     std::multimap<unsigned int, unsigned int> layers; // layer, id
     std::map<unsigned int, Object*> objectMap; // id, object
     std::map<unsigned int, Shaders*> shaderMap; // id, shaders
+    std::map<unsigned int, bool> isAnimationClosed; // id, isClosed
     std::map<std::string, unsigned int> objectNames; // name, id
     std::map<std::string, Sprite*> savedSprites; // name, sprite
 
@@ -24,10 +25,11 @@ namespace {
     unsigned int updateTimerID;
 }
 
-void handler::init(const char* placeholderImagePath) {
+void handler::init(const char* imagesPath) {
     buffers = new Buffers(4, 6);
 
-    saveSprite("placeholder", placeholderImagePath);
+    saveSprite("placeholder", (std::string(imagesPath) + std::string("placeholder.png")).c_str());
+    saveSprite("hitbox", (std::string(imagesPath) + std::string("hitbox.png")).c_str());
 
     updateTimerID = timer::createTimer();
 }
@@ -35,7 +37,9 @@ void handler::init(const char* placeholderImagePath) {
 unsigned int handler::createObject(unsigned int layer, const char* name, Object* object) {
     unsigned int id = objectMap.size();
 
-    layers.insert(std::pair<unsigned int, unsigned int>(layers.size(), id));
+    isAnimationClosed.insert(std::pair<unsigned int, bool>(id, false));
+
+    layers.insert(std::pair<unsigned int, unsigned int>(layer, id));
 
     objectMap.insert(std::pair<unsigned int, Object*>(id, object));
     shaderMap.insert(std::pair<unsigned int, Shaders*>(id, new Shaders("", ""))); // use default shaders
@@ -107,9 +111,11 @@ void handler::setLayer(unsigned int id, unsigned int layer) {
 }
 
 void handler::drawAllObjects(int windowWidth, int windowHeight) {
-    for (auto it = layers.begin(); it != layers.end(); it++) {
-        Object* object = objectMap[it->second];
-        Shaders* shaders = shaderMap[it->second];
+    for (auto& it : layers) {
+        unsigned int objID = it.second;
+
+        Object* object = objectMap[objID];
+        Shaders* shaders = shaderMap[objID];
 
         // update object
         object->events();
@@ -119,7 +125,7 @@ void handler::drawAllObjects(int windowWidth, int windowHeight) {
             continue;
 
         // activate texture
-        if (object->getAnimation() != nullptr && !object->isAnimationsClosed())
+        if (object->getAnimation() != nullptr && !isAnimationClosed[objID])
             object->getAnimation()->step();
 
         // set shader uniforms
@@ -133,11 +139,16 @@ void handler::drawAllObjects(int windowWidth, int windowHeight) {
         buffers->unbind();
 
         // deactivate texture
-        if (object->getAnimation() != nullptr && !object->isAnimationsClosed())
+        if (object->getAnimation() != nullptr && !isAnimationClosed[objID])
             object->getAnimation()->deactivate();
     }
 
     timer::resetTimer(updateTimerID);
+}
+
+void handler::closeAnimations(unsigned int id) {
+    isAnimationClosed[id] = true;
+    changeShaders(id, defaultVertexShaderSource, defaultNoTextureFragmentShaderSource);
 }
 
 void handler::changeShaders(unsigned int id, const char* vertexShaderSource, const char* fragmentShaderSource) {

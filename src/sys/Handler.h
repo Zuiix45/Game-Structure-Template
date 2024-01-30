@@ -2,6 +2,10 @@
 
 #include "../util/Object.h"
 #include "../util/Sprite.h"
+#include "../util/Window.h"
+
+#define id(name) handler::getObjectID(name)
+#define obj(name) handler::getObject(name)
 
 /**
  * @brief The handler namespace contains functions for managing objects in the system.
@@ -75,6 +79,13 @@ namespace handler {
      * @param windowHeight The height of the window.
      */
     void drawAllObjects(int windowWidth, int windowHeight);
+
+    /**
+     * @brief Closes the animations with the specified object ID.
+     * 
+     * @param id The ID of the animations to be closed.
+     */
+    void closeAnimations(unsigned int id);
 
     /**
      * @brief Changes the shaders for a given ID. 

@@ -18,7 +18,6 @@
 class Window {
 private:
     SDL_Window* _SDLWindow; /**< Pointer to the SDL window. */
-    SDL_Renderer* _SDLRenderer; /**< Pointer to the SDL renderer. */
     SDL_GLContext _SDLGLContext; /**< Pointer to the SDL GL context. */
 
     int _width;

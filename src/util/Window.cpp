@@ -29,22 +29,11 @@ Window::Window(const char* title, int width, int height, Uint32 flags) {
         return;
     }
 
-    // Create Renderer for 2D components
-    _SDLRenderer = SDL_CreateRenderer(_SDLWindow, -1, SDL_RENDERER_ACCELERATED);
-
-    if (!_SDLRenderer) {
-        logError("SDL Renderer could not be created.", 0);
-        logSDLError();
-        return;
-    }
-
     _SDLGLContext = SDL_GL_CreateContext(_SDLWindow);
     SDL_GL_MakeCurrent(_SDLWindow, _SDLGLContext);
 
     // Vsync
     setVsync(1);
-
-    if (SDL_SetRenderDrawBlendMode(_SDLRenderer, SDL_BLENDMODE_BLEND) < 0) logSDLError();
 
     // load Glad
     if (gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0)
@@ -54,7 +43,6 @@ Window::Window(const char* title, int width, int height, Uint32 flags) {
 Window::~Window() {
     SDL_GL_DeleteContext(_SDLGLContext);
     SDL_DestroyWindow(_SDLWindow);
-    SDL_DestroyRenderer(_SDLRenderer);
 }
 
 void Window::hide() {
@@ -83,8 +71,6 @@ void Window::setVsync(int interval) {
 
     if (SDL_GL_SetSwapInterval(interval))
         SDL_GL_SetSwapInterval(1);
-
-    SDL_RenderSetVSync(_SDLRenderer, ((interval <= 0) ? interval : 0));
 }
 
 void Window::setBounds(int newWidth, int newHeight) {
@@ -119,8 +105,4 @@ int Window::getHeight() {
 
 SDL_Window* Window::getSDLWindow() {
     return _SDLWindow;
-}
-
-SDL_Renderer* Window::getRenderer() {
-    return _SDLRenderer;
 }

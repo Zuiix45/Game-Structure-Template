@@ -2,19 +2,18 @@
 
 #include "../sys/Logger.h"
 
+#include "gl/DefaultShaders.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 
 Object::Object(float x, float y, float width, float height, float angle) 
             : x(x), y(y), width(width), height(height), angle(angle) {
 
-    topLeftcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    topRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    bottomLeftcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    bottomRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-
-    closeAnimations = false;
+    topLeftColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    topRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    bottomLeftColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    bottomRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
 
     startTimerID = timer::createTimer();
 
@@ -38,38 +37,19 @@ float* Object::getBounds() const {
     return bounds;
 }
 
-void Object::createHitbox(std::string name, float x, float y, float width, float height) {
-    hitboxes[name] = new float[4];
-}
-
-void Object::updateHitbox(std::string name, float x, float y, float width, float height) {
-    hitboxes[name][0] = x;
-    hitboxes[name][1] = y;
-    hitboxes[name][2] = width;
-    hitboxes[name][3] = height;
-}
-
-void Object::removeHitbox(std::string name) {
-    hitboxes.erase(name);
-}
-
-float* Object::getHitbox(std::string name) const {
-    return hitboxes.at(name);
-}
-
 glm::vec4 Object::getColor(unsigned int corner) const {
     switch (corner) {
         case TOP_LEFT_CORNER:
-            return topLeftcolor;
+            return topLeftColor;
             break;
         case TOP_RIGHT_CORNER:
-            return topRightcolor;
+            return topRightColor;
             break;
         case BOTTOM_LEFT_CORNER:
-            return bottomLeftcolor;
+            return bottomLeftColor;
             break;
         case BOTTOM_RIGHT_CORNER:
-            return bottomRightcolor;
+            return bottomRightColor;
             break;
         default:
             logError("Invalid corner specified", 0);
@@ -87,22 +67,22 @@ void Object::setHeight(float height) { this->height = height; }
 void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
     switch (corner) {
         case TOP_LEFT_CORNER:
-            topLeftcolor = glm::vec4(r, g, b, a);
+            topLeftColor = glm::vec4(r, g, b, a);
             break;
         case TOP_RIGHT_CORNER:
-            topRightcolor = glm::vec4(r, g, b, a);
+            topRightColor = glm::vec4(r, g, b, a);
             break;
         case BOTTOM_LEFT_CORNER:
-            bottomLeftcolor = glm::vec4(r, g, b, a);
+            bottomLeftColor = glm::vec4(r, g, b, a);
             break;
         case BOTTOM_RIGHT_CORNER:
-            bottomRightcolor = glm::vec4(r, g, b, a);
+            bottomRightColor = glm::vec4(r, g, b, a);
             break;
         case ALL_CORNERS:
-            topLeftcolor = glm::vec4(r, g, b, a);
-            topRightcolor = glm::vec4(r, g, b, a);
-            bottomLeftcolor = glm::vec4(r, g, b, a);
-            bottomRightcolor = glm::vec4(r, g, b, a);
+            topLeftColor = glm::vec4(r, g, b, a);
+            topRightColor = glm::vec4(r, g, b, a);
+            bottomLeftColor = glm::vec4(r, g, b, a);
+            bottomRightColor = glm::vec4(r, g, b, a);
             break;
         default:
             logError("Invalid corner specified", 0);
@@ -144,10 +124,10 @@ glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
 std::vector<Vertex> Object::getVertices() const {
     std::vector<Vertex> vertices;
 
-    glm::vec4 normalizedTopLeftColor = glm::vec4(topLeftcolor.r/255.0f, topLeftcolor.g/255.0f, topLeftcolor.b/255.0f, topLeftcolor.a);
-    glm::vec4 normalizedTopRightColor = glm::vec4(topRightcolor.r/255.0f, topRightcolor.g/255.0f, topRightcolor.b/255.0f, topRightcolor.a);
-    glm::vec4 normalizedBottomLeftColor = glm::vec4(bottomLeftcolor.r/255.0f, bottomLeftcolor.g/255.0f, bottomLeftcolor.b/255.0f, bottomLeftcolor.a);
-    glm::vec4 normalizedBottomRightColor = glm::vec4(bottomRightcolor.r/255.0f, bottomRightcolor.g/255.0f, bottomRightcolor.b/255.0f, bottomRightcolor.a);
+    glm::vec4 normalizedTopLeftColor = glm::vec4(topLeftColor.r/255.0f, topLeftColor.g/255.0f, topLeftColor.b/255.0f, topLeftColor.a);
+    glm::vec4 normalizedTopRightColor = glm::vec4(topRightColor.r/255.0f, topRightColor.g/255.0f, topRightColor.b/255.0f, topRightColor.a);
+    glm::vec4 normalizedBottomLeftColor = glm::vec4(bottomLeftColor.r/255.0f, bottomLeftColor.g/255.0f, bottomLeftColor.b/255.0f, bottomLeftColor.a);
+    glm::vec4 normalizedBottomRightColor = glm::vec4(bottomRightColor.r/255.0f, bottomRightColor.g/255.0f, bottomRightColor.b/255.0f, bottomRightColor.a);
 
     vertices.push_back({glm::vec3(-0.5f, -0.5f, 0.0f), normalizedTopLeftColor, glm::vec2(0.0f, 0.0f)});
     vertices.push_back({glm::vec3(0.5f, -0.5f, 0.0f), normalizedTopRightColor, glm::vec2(1.0f, 0.0f)});
@@ -164,10 +144,6 @@ std::vector<unsigned int> Object::getIndices() const {
     };
 
     return indices;
-}
-
-bool Object::isAnimationsClosed() const {
-    return closeAnimations;
 }
 
 void Object::show() {

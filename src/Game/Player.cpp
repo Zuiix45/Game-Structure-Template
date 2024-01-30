@@ -1,6 +1,12 @@
 #include "Player.h"
 
 #include "../sys/Handler.h"
+#include "../sys/Physics.h"
+#include "../sys/Logger.h"
+
+#include "../util/Hitbox.h"
+
+#include "Game.h"
 
 Player::Player() {
 
@@ -21,7 +27,7 @@ Player::Player() {
 
     setAnimation(lookDown);
 
-    createHitbox("main", 0, 0, width, height);
+    handler::createObject(PLAYER_LAYER, "player_hitbox", new Hitbox(this, 45, 30, 42, 82));
 }
 
 void Player::controlMovement() {
@@ -53,6 +59,10 @@ void Player::controlMovement() {
 void Player::update(float deltaTime) {
     x += vX * deltaTime;
     y += vY * deltaTime;
+
+    if (physics::isColliding(obj("player_hitbox"), obj("barrier"))) {
+        logInfo("Colliding with barrier");
+    }
 }
 
 void Player::events() {

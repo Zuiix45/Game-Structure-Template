@@ -1,12 +1,20 @@
 #include "Physics.h"
 
-bool physics::isColliding(float hitbox1[4], float hitbox2[4]) {
-    if (hitbox1[0] < hitbox2[0] + hitbox2[2] &&
-        hitbox1[0] + hitbox1[2] > hitbox2[0] &&
-        hitbox1[1] < hitbox2[1] + hitbox2[3] &&
-        hitbox1[1] + hitbox1[3] > hitbox2[1]) {
-        return true;
-    }
+bool physics::isColliding(Object* object1, Object* object2) {
+    float x1 = object1->getX();
+    float y1 = object1->getY();
+    float width1 = object1->getWidth();
+    float height1 = object1->getHeight();
+
+    float x2 = object2->getX();
+    float y2 = object2->getY();
+    float width2 = object2->getWidth();
+    float height2 = object2->getHeight();
+
+    if (x1 < x2 + width2 &&
+        x1 + width1 > x2 &&
+        y1 < y2 + height2 &&
+        y1 + height1 > y2) return true;
 
     return false;
 }

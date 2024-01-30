@@ -35,4 +35,16 @@ void main() {
     FragColor = texture(u_Texture, v_TexCoord) * v_Color;
 }
     )";
+
+    const char* defaultNoTextureFragmentShaderSource = R"(
+#version 330 core
+
+in vec4 v_Color;
+
+out vec4 FragColor;
+
+void main() {
+    FragColor = v_Color;
+}
+    )";        
 }
