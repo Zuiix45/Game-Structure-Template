@@ -14,7 +14,11 @@ Object::Object(float x, float y, float width, float height, float angle)
     bottomLeftcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
     bottomRightcolor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
 
+    closeAnimations = false;
+
     startTimerID = timer::createTimer();
+
+    animation = nullptr;
 }
 
 float Object::getX() const { return x; }
@@ -34,8 +38,23 @@ float* Object::getBounds() const {
     return bounds;
 }
 
-std::vector<unsigned int> Object::getHitBoxIDs() const {
-    return hitBoxIDs;
+void Object::createHitbox(std::string name, float x, float y, float width, float height) {
+    hitboxes[name] = new float[4];
+}
+
+void Object::updateHitbox(std::string name, float x, float y, float width, float height) {
+    hitboxes[name][0] = x;
+    hitboxes[name][1] = y;
+    hitboxes[name][2] = width;
+    hitboxes[name][3] = height;
+}
+
+void Object::removeHitbox(std::string name) {
+    hitboxes.erase(name);
+}
+
+float* Object::getHitbox(std::string name) const {
+    return hitboxes.at(name);
 }
 
 glm::vec4 Object::getColor(unsigned int corner) const {
@@ -91,11 +110,15 @@ void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
     }
 }
 
-void Object::setAnimation(Animation* animation) {
+Animation* Object::setAnimation(Animation* animation) {
     if (animation->isLoadedSuccessfully()) {
-        delete this->animation;
+        Animation* temp = this->animation;
         this->animation = animation;
+
+        return temp;
     }
+
+    return this->animation;
 }
 
 Animation* Object::getAnimation() const {
@@ -141,6 +164,10 @@ std::vector<unsigned int> Object::getIndices() const {
     };
 
     return indices;
+}
+
+bool Object::isAnimationsClosed() const {
+    return closeAnimations;
 }
 
 void Object::show() {

@@ -44,6 +44,10 @@ void Sprite::activateTexture() const {
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
+void Sprite::deactivateTexture() const {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 unsigned int Sprite::getTextureID() const {
     return textureID;
 }
@@ -61,7 +65,15 @@ Animation::Animation(Sprite* frame) {
         return;
     }
 
+    this->fps = 0;
+    this->frameTime = 0.0f;
+    currentKeyframe = 0;
+
+    animTimerID = timer::createTimer();
+
     keyframes.push_back(frame);
+
+    isLoaded = true;
 }
 
 Animation::Animation(std::vector<Sprite*> keyframes, int fps, float speed) {
@@ -80,6 +92,8 @@ Animation::Animation(std::vector<Sprite*> keyframes, int fps, float speed) {
     animTimerID = timer::createTimer();
 
     frameTime = 1000.0f / fps / speed;
+    
+    isLoaded = true;
 }
 
 void Animation::step() {
@@ -102,6 +116,10 @@ void Animation::step() {
     }
 
     keyframes[currentKeyframe]->activateTexture();
+}
+
+void Animation::deactivate() {
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 bool Animation::isLoadedSuccessfully() const {

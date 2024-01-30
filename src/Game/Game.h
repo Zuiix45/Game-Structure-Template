@@ -3,10 +3,12 @@
 #include "../sys/Handler.h"
 
 #include "Player.h"
+#include "Barrier.h"
 
 #include <string>
 
 #define PLAYER_LAYER 1
+#define BARRIER_LAYER 2
 
 namespace game {
     void initSprites() {
@@ -20,5 +22,6 @@ namespace game {
 
     void initObjects() {
         handler::createObject(PLAYER_LAYER, "player", new Player());
+        handler::createObject(BARRIER_LAYER, "barrier", new Barrier(100, 100, 100, 100));
     }
 }

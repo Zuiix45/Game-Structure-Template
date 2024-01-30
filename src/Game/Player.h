@@ -16,4 +16,13 @@ private:
 
     float vX;
     float vY;
+
+    Animation* lookUp;
+    Animation* lookDown;
+    Animation* lookLeft;
+    Animation* lookRight;
+
+    float baseSpeed;
+
+    void controlMovement();
 };

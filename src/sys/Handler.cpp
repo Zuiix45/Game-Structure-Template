@@ -40,7 +40,8 @@ unsigned int handler::createObject(unsigned int layer, const char* name, Object*
     objectMap.insert(std::pair<unsigned int, Object*>(id, object));
     shaderMap.insert(std::pair<unsigned int, Shaders*>(id, new Shaders("", ""))); // use default shaders
 
-    object->setAnimation(new Animation(savedSprites["placeholder"]));
+    if (object->getAnimation() == nullptr)
+        object->setAnimation(new Animation(savedSprites["placeholder"])); // static animation
 
     objectNames.insert(std::pair<std::string, unsigned int>(name, id));
 
@@ -49,10 +50,6 @@ unsigned int handler::createObject(unsigned int layer, const char* name, Object*
 
 Object* handler::deleteObject(unsigned int id) {
     Object* object = objectMap[id];
-
-    for (int i = 0; i < object->getHitBoxIDs().size(); i++) {
-        physics::destroyHitBox(object->getHitBoxIDs()[i]);
-    }
 
     // delete id from layers
     for (auto it = layers.end(); it != layers.begin(); it--) {
@@ -122,7 +119,8 @@ void handler::drawAllObjects(int windowWidth, int windowHeight) {
             continue;
 
         // activate texture
-        object->getAnimation()->step();
+        if (object->getAnimation() != nullptr && !object->isAnimationsClosed())
+            object->getAnimation()->step();
 
         // set shader uniforms
         shaders->activate();
@@ -133,6 +131,10 @@ void handler::drawAllObjects(int windowWidth, int windowHeight) {
         buffers->setVertexData(object->getVertices(), object->getIndices());
         buffers->drawElements();
         buffers->unbind();
+
+        // deactivate texture
+        if (object->getAnimation() != nullptr && !object->isAnimationsClosed())
+            object->getAnimation()->deactivate();
     }
 
     timer::resetTimer(updateTimerID);

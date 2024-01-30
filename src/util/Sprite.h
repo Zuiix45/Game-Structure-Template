@@ -23,6 +23,8 @@ public:
      */
     void activateTexture() const;
 
+    void deactivateTexture() const;
+
     /**
      * @brief Get the texture ID of the sprite.
      * 
@@ -49,6 +51,7 @@ public:
     Animation(std::vector<Sprite*> keyframes, int fps=60, float speed=1.0f);
 
     void step();
+    void deactivate();
 
     bool isLoadedSuccessfully() const;
 
