@@ -31,7 +31,7 @@ namespace {
                     newSessionOpened = true;
                 }
 
-                files::writeTxt("./bin/logs/debug_logs.txt", result);
+                files::writeFile("./bin/logs/debug_logs.txt", result);
             }
         }
 
@@ -41,7 +41,7 @@ namespace {
                 newSessionOpened = true;
             }
 
-            files::writeTxt("./logs/release_logs.txt", result);
+            files::writeFile("./logs/release_logs.txt", result);
         }
     }
 
@@ -63,7 +63,7 @@ namespace {
                     newSessionOpened = true;
                 }
 
-                files::writeTxt("./bin/logs/debug_logs.txt", result);
+                files::writeFile("./bin/logs/debug_logs.txt", result);
             }
         }
 
@@ -73,7 +73,7 @@ namespace {
                 newSessionOpened = true;
             }
             
-            files::writeTxt("./logs/release_logs.txt", result);
+            files::writeFile("./logs/release_logs.txt", result);
         }
     }
 }

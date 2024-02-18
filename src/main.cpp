@@ -6,12 +6,10 @@
 
 #include "sys/Logger.h"
 #include "sys/Events.h"
-#include "sys/Handler.h"
+#include "sys/Engine.h"
 #include "sys/Physics.h"
-
-#include "Game/Game.h"
-
-#include "util/Sprite.h"
+#include "sys/Timer.h"
+#include "sys/LuaBinder.h"
 
 #define NAME "Game"
 #define VERSION "0.0.0"
@@ -37,16 +35,17 @@ int main(int argc, char* args[]) {
 
 	// Initialize application
   	Application::initApp(NAME, VERSION, debugMode, 800, 600);
-	handler::init("./data/images/");
+	engine::init("./data/images/");
 
-	// Initialize game
-	game::initSprites();
-	game::initObjects();
+	// Initialize Lua api
+	lua::init();
+	lua::bindAllSystems();
+	lua::bindAllClasses();
 
 	// Starting point of main loop
 	while (!events::isQuitOccurred()) {
 		events::fetchEvents();
-		handler::drawAllObjects(WINDOW_WIDTH, WINDOW_HEIGHT);
+		engine::drawAll(WINDOW_WIDTH, WINDOW_HEIGHT);
 		Application::operateFrame(0);
 	}
 

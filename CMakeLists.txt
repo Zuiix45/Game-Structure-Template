@@ -17,6 +17,7 @@ find_package(Freetype REQUIRED)
 find_package(Stb REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
+find_package(Lua REQUIRED)
 
 # Gather all sources (you can modify this as needed)
 file(GLOB_RECURSE PROJECT_SOURCES 
@@ -35,12 +36,20 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/glad/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+
+# Link LuaBridge
+find_path(LUABRIDGE_INCLUDE_DIRS "LuaBridge/Array.h")
+target_include_directories(${PROJECT_NAME} PRIVATE ${LUABRIDGE_INCLUDE_DIRS})
 
 # Link SDL2
 target_link_libraries(${PROJECT_NAME} PRIVATE
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )
+
+# Link Lua
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LUA_LIBRARIES})
 
 # Link Others
 target_link_libraries(${PROJECT_NAME} PRIVATE

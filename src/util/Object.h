@@ -1,15 +1,13 @@
 #pragma once
 
-#include "../sys/Timer.h"
 #include "../sys/Events.h"
 
 #include "gl/Shaders.h"
 #include "gl/Buffers.h"
 
-#include "Sprite.h"
-
 #include <glm/glm.hpp>
 #include <map>
+#include <memory>
 #include <vector>
 
 #define TOP_LEFT_CORNER 0
@@ -25,9 +23,7 @@ public:
      * It stores the object's position (x, y), size (width, height), and rotation angle(Degree).
      */
     Object(float x = 0, float y = 0, float width = 0, float height = 0, float angle = 0);
-
-    virtual void update(float deltaTime) {};
-    virtual void events() {};
+    ~Object();
 
     float getX() const;
     float getY() const;
@@ -35,7 +31,7 @@ public:
     float getHeight() const;
     float getAngle() const;
 
-    float* getBounds() const;
+    std::shared_ptr<float> getBounds() const;
 
     /**
      * @brief Get the color of the object at the specified corner.
@@ -69,22 +65,6 @@ public:
     void setColor(float r, float g, float b, float a = 1.0f, unsigned int corner = ALL_CORNERS);
 
     /**
-     * @brief Sets the Animation for the object.
-     * 
-     * @param animation A pointer to the Animation object.
-     * 
-     * @return A pointer to the old Animation object.
-     */
-    Animation* setAnimation(Animation* animation);
-
-    /**
-     * @brief Returns the Animation associated with the object.
-     * 
-     * @return Pointer to the Animation.
-     */
-    Animation* getAnimation() const;
-
-    /**
      * @brief This function calculates and returns the model matrix for the object based on its current position, rotation, and scale.
      * The model matrix is a glm::mat4 object that represents the transformation applied to the object in the world space.
      * 
@@ -109,6 +89,8 @@ public:
      */
     std::vector<unsigned int> getIndices() const;
 
+    double getElapsedTime() const;
+
     void show();
     void hide();
 
@@ -124,8 +106,6 @@ protected:
 
 private:
     unsigned int startTimerID; // counts the time since the object was created
-
-    Animation* animation;
 
     bool visible;
 };

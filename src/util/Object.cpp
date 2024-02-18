@@ -1,6 +1,7 @@
 #include "Object.h"
 
 #include "../sys/Logger.h"
+#include "../sys/Timer.h"
 
 #include "gl/DefaultShaders.h"
 
@@ -16,8 +17,10 @@ Object::Object(float x, float y, float width, float height, float angle)
     bottomRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
 
     startTimerID = timer::createTimer();
+}
 
-    animation = nullptr;
+Object::~Object() {
+    timer::killTimer(startTimerID);
 }
 
 float Object::getX() const { return x; }
@@ -26,15 +29,15 @@ float Object::getWidth() const { return width; }
 float Object::getHeight() const { return height; }
 float Object::getAngle() const { return angle; }
 
-float* Object::getBounds() const {
-    float* bounds = new float[4];
+std::shared_ptr<float> Object::getBounds() const {
+    float bounds[4];
 
     bounds[0] = x;
     bounds[1] = y;
     bounds[2] = width;
     bounds[3] = height;
 
-    return bounds;
+    return std::make_shared<float>(*bounds);
 }
 
 glm::vec4 Object::getColor(unsigned int corner) const {
@@ -50,6 +53,9 @@ glm::vec4 Object::getColor(unsigned int corner) const {
             break;
         case BOTTOM_RIGHT_CORNER:
             return bottomRightColor;
+            break;
+        case ALL_CORNERS:
+            return topLeftColor;
             break;
         default:
             logError("Invalid corner specified", 0);
@@ -88,21 +94,6 @@ void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
             logError("Invalid corner specified", 0);
             break;
     }
-}
-
-Animation* Object::setAnimation(Animation* animation) {
-    if (animation->isLoadedSuccessfully()) {
-        Animation* temp = this->animation;
-        this->animation = animation;
-
-        return temp;
-    }
-
-    return this->animation;
-}
-
-Animation* Object::getAnimation() const {
-    return animation;
 }
 
 glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
@@ -144,6 +135,10 @@ std::vector<unsigned int> Object::getIndices() const {
     };
 
     return indices;
+}
+
+double Object::getElapsedTime() const {
+    return timer::getTimeDiff(startTimerID);
 }
 
 void Object::show() {

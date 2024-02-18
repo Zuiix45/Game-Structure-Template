@@ -31,7 +31,7 @@ namespace {
 }
 
 // Write data to a text file
-void files::writeTxt(std::string path, std::string data, bool addExtension) {
+void files::writeFile(std::string path, std::string data, bool addExtension) {
     std::ofstream file;
 
     path = files::normalizePath(path.c_str());
@@ -60,7 +60,7 @@ void files::writeTxt(std::string path, std::string data, bool addExtension) {
 }
 
 // Read data from a text file
-std::string files::readTxt(std::string path, bool addExtension) {
+std::string files::readFile(std::string path, bool addExtension) {
     std::ifstream file;
 
     path = files::normalizePath(path.c_str());
@@ -129,6 +129,21 @@ std::vector<std::string> files::getFolderNames(const std::string& directory) {
             result.push_back(path.path().string());
 
     return result;
+}
+
+std::vector<std::string> files::getAllFilePaths(const std::string& directory) {
+    std::vector<std::string> result;
+
+    for(auto& path : std::filesystem::recursive_directory_iterator(normalizePath(directory)))
+        if (path.is_regular_file())
+            result.push_back(path.path().string());
+
+    return result;
+}
+
+std::string files::extractFileName(const std::string& path) {
+    std::filesystem::path p = path;
+    return p.filename().string();
 }
 
 std::string files::trim(std::string& str) {

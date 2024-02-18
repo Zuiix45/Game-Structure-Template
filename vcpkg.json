@@ -5,6 +5,8 @@
     "freetype",
     "stb",
     "openal-soft",
-    "zlib"
+    "zlib",
+    "lua",
+    "luabridge"
   ]
 }
