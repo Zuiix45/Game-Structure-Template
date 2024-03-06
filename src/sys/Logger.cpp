@@ -22,7 +22,7 @@ namespace {
 
         std::string result = oss.str();
 
-        if (Application::isDebugging()) {
+        if (App::isDebugging()) {
             std::cout << result << std::endl;
 
             if (outLogFile) {
@@ -31,7 +31,7 @@ namespace {
                     newSessionOpened = true;
                 }
 
-                files::writeTxt("./bin/logs/debug_logs.txt", result);
+                files::writeFile("./bin/logs/debug_logs.txt", result, true);
             }
         }
 
@@ -41,7 +41,7 @@ namespace {
                 newSessionOpened = true;
             }
 
-            files::writeTxt("./logs/release_logs.txt", result);
+            files::writeFile("./logs/release_logs.txt", result, true);
         }
     }
 
@@ -54,7 +54,7 @@ namespace {
 
         std::string result = oss.str();
 
-        if (Application::isDebugging()) {
+        if (App::isDebugging()) {
             std::cout << result << std::endl;
 
             if (outLogFile) {
@@ -63,7 +63,7 @@ namespace {
                     newSessionOpened = true;
                 }
 
-                files::writeTxt("./bin/logs/debug_logs.txt", result);
+                files::writeFile("./bin/logs/debug_logs.txt", result, true);
             }
         }
 
@@ -73,7 +73,7 @@ namespace {
                 newSessionOpened = true;
             }
             
-            files::writeTxt("./logs/release_logs.txt", result);
+            files::writeFile("./logs/release_logs.txt", result, true);
         }
     }
 }
@@ -89,31 +89,42 @@ void logger::_logPoint(const char* file, int line) {
     parseLogWithoutFileLine(oss.str());
 }
 
-void logger::_logError(const char* file, int line, std::string error, int code) {
+void logger::_logError(const char* file, int line, const std::string& error, ErrorCode code) {
+    std::string _error = error;
+
     std::ostringstream oss;
 
     if (code != 0)
-        oss << "Error: " << error << ":" << code;
+        oss << "Error: " << _error << ":" << code;
     else if (code == 0)
-        oss << "Error: " << error;
+        oss << "Error: " << _error;
 
     parseLogWithFileLine(oss.str(), file, line);
 }
 
-void logger::_logInfo(std::string info) {
+void logger::_logInfo(const std::string& info) {
+    std::string _info = info;
+
     std::ostringstream oss;
-    oss << "Info: " << info;
+    oss << "Info: " << _info;
 
     parseLogWithoutFileLine(oss.str());
 }
 
-void logger::_logSDLError(const char* file, int line) {
-    std::ostringstream oss;
+void logger::printHelp() {
+    std::cerr <<  std::endl << "Command line arguments: " << std::endl;
+    std::cerr << "  -h, --help: Prints help(this) message." << std::endl;
+    std::cerr << "  -v, --version: Prints version info." << std::endl;
+    std::cerr << "  -d, --debug: Enables debug mode." << std::endl;
+}
 
-    const char* error = SDL_GetError();
-    if (error == "") return;
-    
-    oss << "SDL ERROR: " << error << " - "<< file << ":" << line;
+void logger::printVersion(const char* name, const char* version, const char* license) {
+    std::cerr << std::endl << name << " ver. "<< version << std::endl << license << std::endl;
+}
 
-    parseLogWithoutFileLine(oss.str());
+int logger::enterBeforeClose() {
+    std::cerr << "\nPress enter to close the application...";
+    std::cin.get();
+
+    return 0;
 }

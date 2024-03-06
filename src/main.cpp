@@ -1,81 +1,87 @@
-
-#include <iostream>
-#include <string>
-
 #include "Application.h"
 
 #include "sys/Logger.h"
+#include "sys/Engine.h"
 #include "sys/Events.h"
-#include "sys/Handler.h"
-#include "sys/Physics.h"
-
-#include "Game/Game.h"
-
-#include "util/Sprite.h"
+#include "sys/Timer.h"
+#include "sys/TextRendering.h"
 
 #define NAME "Game"
 #define VERSION "0.0.0"
-#define LICENSE "MIT LICENSE: <https://www.mit.edu/~amini/LICENSE.md>"
+#define LICENSE "LICENSE"
 
 bool debugMode;
-bool quitEarly; 
-
 /**
  * @brief Parse args (--help, --version, --debug)
  */
-void parseArgs(char* args[]);
+bool parseArgs(char* args[]);
 
 /**
  * @brief Starting location
  */
 int main(int argc, char* args[]) {
-	parseArgs(args);
-
 	// if the --help or --version arguments are passed then application should not start
-	if (quitEarly)
-		return 0;
+	if (parseArgs(args)) return logger::enterBeforeClose();
 
 	// Initialize application
-  	Application::initApp(NAME, VERSION, debugMode, 800, 600);
-	handler::init("./data/images/");
+  	App::initApp(NAME, VERSION, debugMode, 800, 600);
+	engine::init("./data/images/");
+	callbacks::init(App::getFocusedWindow()->getGLFWWindow());
+	timer::init();
+	text::init("./data/fonts/");
+	fonts::defaultFont = text::loadFont("anta_regular", 32);
 
-	// Initialize game
-	game::initSprites();
-	game::initObjects();
+	App::getFocusedWindow()->setFullscreen(true);
+
+	auto panel = make<Object>(0, 0, 300, 135, 0);
+
+	engine::registerObject(1, "stats_panel", panel);
+
+	panel->setColor(0, 0, 0, 0.7);
+
+	int objSize = 100;
+
+	for (int x = 0; x <= 1920; x += objSize) {
+		for (int y = 0; y <= 1080; y += objSize)
+			engine::registerObject(2, "test_" + std::to_string(x) + "_" + std::to_string(y), make<Object>(x, y, objSize, objSize, 0));
+	}
 
 	// Starting point of main loop
-	while (!events::isQuitOccurred()) {
-		events::fetchEvents();
-		handler::drawAllObjects(WINDOW_WIDTH, WINDOW_HEIGHT);
-		Application::operateFrame(0);
+	while (App::isRunning()) {
+		input::pollEvents();
+
+		text::setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT); // remove this
+		engine::drawAllObjects(WINDOW_WIDTH, WINDOW_HEIGHT);
+		
+		App::renderStats();
+		App::operateFrame(0);
+
+		benchmark::countFrames();
 	}
 
 	// Don't close terminal if -d argument passed
-	if (Application::isDebugging())
+	if (App::isDebugging())
     	system("pause");
 
-	Application::destroyApp();
+	text::destroy();
+	App::destroyApp();
 
   	return 0;
 }
 
 /* Sources */
 
-void parseArgs(char* args[]) {
+bool parseArgs(char* args[]) {
   	for(const char *const *it = args + 1; *it; ++it) {
 		std::string arg = *it;
 		if(arg == "-h" || arg == "--help") {
-			std::cerr <<  std::endl << "Command line arguments: " << std::endl;
-			std::cerr << "  -h, --help: Prints help(this) message." << std::endl;
-			std::cerr << "  -v, --version: Prints version info." << std::endl;
-			std::cerr << "  -d, --debug: Enables debug mode." << std::endl;
-
-			quitEarly = true;
+			logger::printHelp();
+			return true;
 		}
 
 		else if(arg == "-v" || arg == "--version") {
-			std::cerr << std::endl << NAME << " ver. "<< VERSION << std::endl << LICENSE << std::endl;
-			quitEarly = true;
+			logger::printVersion(NAME, VERSION, LICENSE);
+			return true;
 		}
 
 		else if(arg == "-d" || arg == "--debug") {
@@ -83,4 +89,6 @@ void parseArgs(char* args[]) {
 			logger::setOutLogFile(false);
 		}
 	}
+
+	return false;
 }

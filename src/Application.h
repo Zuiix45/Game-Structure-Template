@@ -1,30 +1,23 @@
 #pragma once
 
-#include "sys/Events.h"
 #include "util/Window.h"
 
 #include <map>
 
-#define WINDOW_FLAGS SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
+#define WINDOW_WIDTH App::getFocusedWindow()->getWidth()
+#define WINDOW_HEIGHT App::getFocusedWindow()->getHeight()
 
-#define WINDOW_WIDTH Application::getFocusedWindow()->getWidth()
-#define WINDOW_HEIGHT Application::getFocusedWindow()->getHeight()
-
-namespace cursors {
-    extern SDL_Cursor* defaultCursor;
-    extern SDL_Cursor* sizeWE; // horizontal resize
-    extern SDL_Cursor* sizeNESW; // diagonal(North-East South-West) resize
-    extern SDL_Cursor* sizeNS; // vertical resize
-    extern SDL_Cursor* sizeNWSE; // diagonal(North-West South-East) resize
-    extern SDL_Cursor* sizeAll;
-    extern SDL_Cursor* handCursor;
+namespace fonts {
+    extern unsigned int defaultFont;
 }
+
+#define DEF_FONT fonts::defaultFont
 
 /**
  * @brief The Application class provides methods for initializing and retrieving
  *        information about the application.
  */
-class Application {
+class App {
 public:
     /**
      * @brief Initializes the application with the provided parameters.
@@ -47,7 +40,7 @@ public:
     /**
      * @brief Gets the name of the application.
      */
-    static const char* getName();
+    static const char* getAppName();
 
     /**
      * @brief Gets the version of the application.
@@ -58,6 +51,13 @@ public:
      * @brief Checks if the application is running in debug mode.
      */
     static bool isDebugging();
+
+    /**
+     * @brief Checks if the application is currently running.
+     * 
+     * @return true if the application is running, false otherwise.
+     */
+    static bool isRunning();
 
     /**
      * @brief Gets the time since the application started.
@@ -94,19 +94,24 @@ public:
      */
     static Window* getFocusedWindow();
 
+    /**
+     * Renders the statistics of the game.
+     */
+    static void renderStats();
+
 private:
     static int sessionTimer;
-    static int frameTimer; // this will reset every time when buffers swapped
+    static int frameTimer; /**< this will reset every time when buffers swapped except vsync is on and fps cap is off. */
 
-    static double checkPoint; // indicates one second before sessionTimer, used on fps counting
+    static double checkPoint; /**< indicates one second before sessionTimer, used on fps counting. */
 
     static int currentFPS;
-    static int lastFPS; // counted fps for last second
+    static int lastFPS; /**< counted fps for last second. */
 
     static const char* _name;
     static const char* _version;
 
-    static bool _debugMode; // Internal variable indicating whether debug mode is enabled
+    static bool _debugMode; /**< Internal variable indicating whether debug mode is enabled. */
 
     static bool isInitSuccess;
 

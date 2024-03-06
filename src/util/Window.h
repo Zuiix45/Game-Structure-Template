@@ -1,35 +1,22 @@
 #pragma once
 
-#include <SDL2/SDL.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 #include <string>
 #include <vector>
-
-#define ENABLE_ADAPTIVE_VSYNC -1
-#define ENABLE_VSYNC 1
-#define DISABLE_VSYNC 0
 
 /**
  * @brief Class representing a window for graphics rendering.
  */
 
 class Window {
-private:
-    SDL_Window* _SDLWindow; /**< Pointer to the SDL window. */
-    SDL_GLContext _SDLGLContext; /**< Pointer to the SDL GL context. */
-
-    int _width;
-    int _height;
-
-    glm::vec2 _location;
-
 public:
     /**
      * @brief Default constructor
      */
-    Window(const char* title, int width, int height, Uint32 flags);
+    Window(const char* title, int width, int height);
 
     /**
      * @brief Destroy the Window object
@@ -46,11 +33,6 @@ public:
      * @brief Show the window.
      */
     void show();
-
-    /**
-     * @brief Create new empty frame
-     */
-    void newFrame();
 
     /**
      * @brief Render the current frame
@@ -81,9 +63,18 @@ public:
     /**
      * @brief Enable or disable vsync. Enables normal if adaptive fails.
      *
-     * @param interval 1: enable, 0: disable, -1: adaptive
+     * @param interval 1: enable, 0: disable
      */
-    void setVsync(int interval);
+    void setVsync(bool interval);
+
+    /**
+     * @brief Sets the fullscreen mode of the window.
+     * 
+     * @param fullscreen True to enable fullscreen mode, false otherwise.
+     * @param width The width of the window.
+     * @param height The height of the window.
+     */
+    void setFullscreen(bool fullscreen, int width = 0, int height = 0);
 
     /**
      * @brief Check if vsync is enabled.
@@ -91,11 +82,18 @@ public:
     bool isVsyncOn();
 
     /**
-     * @brief Get the window location.
-     *
-     * @return The location of the window as a 2D vector.
+     * @brief Gets the X coordinate of the window.
+     * 
+     * @return The X coordinate of the window.
      */
-    glm::vec2 getLocation();
+    int getX();
+
+    /**
+     * @brief Gets the y-coordinate of the window.
+     * 
+     * @return The y-coordinate of the window.
+     */
+    int getY();
 
     /**
      * @brief Get the window width.
@@ -108,13 +106,27 @@ public:
     int getHeight();
 
     /**
-     * @brief Get the SDL window pointer.
+     * @brief Gets new windows bounds from GLFW and updates local variables.
+     * 
      */
-    SDL_Window* getSDLWindow();
+    void updateWindowBounds();
 
     /**
-     * @brief Get the SDL renderer pointer.
+     * @brief Retrieves the GLFW window object.
+     * 
+     * @return A pointer to the GLFWwindow object.
      */
-    SDL_Renderer* getRenderer();
+    GLFWwindow* getGLFWWindow();
+
+private:
+    GLFWwindow* _GLFWWindow; /**< Pointer to the GLFW window. */
+
+    int _width;
+    int _height;
+    int _x;
+    int _y;
+
+    bool _interval;
+    bool _fullscreen;
 };
  

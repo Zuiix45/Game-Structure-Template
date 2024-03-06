@@ -3,5 +3,6 @@
 #include "../util/Object.h"
 
 namespace physics {
-    bool isColliding(Object* object1, Object* object2);
+    bool isColliding(unsigned int objectID1, unsigned int objectID2);
+    void loop();
 }

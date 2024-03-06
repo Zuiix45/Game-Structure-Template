@@ -15,7 +15,7 @@ project(Game)
 find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Stb REQUIRED)
-find_package(SDL2 CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 
 # Gather all sources (you can modify this as needed)
@@ -36,17 +36,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/glad/include)
 
-# Link SDL2
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-)
-
-# Link Others
+# Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE
     glm::glm
     Freetype::Freetype
     OpenAL::OpenAL
+    glfw
 )
 
 # Set output directory for the executable

@@ -50,7 +50,7 @@ void Shaders::setUniform(const char *name, float* value, int type) {
             glUniformMatrix4fv(location, 1, GL_FALSE, (GLfloat*)value);
             break;
         default:
-            logError("Invalid uniform type", 0);
+            logError("Invalid uniform type", INVALID_UNIFORM_TYPE);
             break;
     }
 }
@@ -66,7 +66,7 @@ void Shaders::CompileShaders() {
     m_FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
     if (m_VertexShader == 0 || m_FragmentShader == 0) {
-        logError("Failed to create shaders", 0);
+        logError("Failed to create shaders", SHADER_COMPILATION_ERROR);
         return;
     }
 

@@ -46,7 +46,7 @@ public:
      * @param vertices The vector of vertices to set.
      * @param indices The vector of indices to set.
      */
-    void setVertexData(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+    void setVertexData(Vertex* vertices, int* indices);
 
     /**
      * @brief Draws the elements using the buffer data.

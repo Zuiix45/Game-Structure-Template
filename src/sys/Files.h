@@ -21,19 +21,20 @@ struct Image {
 namespace files {
     /**
      * @brief Write data to a text file.
-     *
-     * @param path The path of the file to be written.
+     * 
+     * @param mPath The path of the file to be written.
      * @param data The data to be written to the file.
+     * @param append Whether to append to the file (default: false).
      */
-    void writeTxt(std::string path, std::string data, bool addExtension = true);
+    void writeFile(const std::string& mPath, const std::string& data, bool append = false);
 
     /**
      * @brief Read data from a text file.
      *
-     * @param path The path of the file to be read.
+     * @param mPath The path of the file to be read.
      * @return The data read from the file as a string.
      */
-    std::string readTxt(std::string path, bool addExtension = true);
+    std::string readFile(const std::string& mPath);
 
     /**
      * @brief Normalizes the given path.
@@ -66,12 +67,16 @@ namespace files {
      */
     std::vector<std::string> getFolderNames(const std::string& directory);
 
+    std::vector<std::string> getAllFilePaths(const std::string& directory);
+
+    std::string extractFileName(const std::string& path);
+
     /**
      * @brief Erase all whitespaces at the start and end of a string
      *
      * @param str the original string
      */
-    std::string trim(std::string &str);
+    std::string trim(const std::string& str);
 
     /**
      * @brief Split a string with delimiter
@@ -112,4 +117,6 @@ namespace files {
      * @return The loaded image.
      */
     Image loadImage(const std::string& path, bool flip = true);
+
+    char* loadBinaryFile(const std::string& path);
 }

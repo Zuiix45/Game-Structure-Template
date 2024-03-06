@@ -1,16 +1,17 @@
 #pragma once
 
 #include "../sys/Timer.h"
-#include "../sys/Events.h"
 
-#include "gl/Shaders.h"
-#include "gl/Buffers.h"
+#include "renderer/Shaders.h"
+#include "renderer/Buffers.h"
 
-#include "Sprite.h"
+#include "Animation.h"
 
 #include <glm/glm.hpp>
 #include <map>
 #include <vector>
+#include <optional>
+#include <memory>
 
 #define TOP_LEFT_CORNER 0
 #define TOP_RIGHT_CORNER 1
@@ -18,47 +19,136 @@
 #define BOTTOM_RIGHT_CORNER 3
 #define ALL_CORNERS 4
 
+enum class ObjectType {
+    STATIC,
+    SUB_ENTITY,
+    ENTITY
+};
+
+/**
+ * @file Object.h
+ * @brief This file contains the declaration of the Object class.
+ */
+
+/**
+ * @class Object
+ * @brief This class provides a convenient way to represent objects in a 2D space.
+ * It stores the object's position (x, y), size (width, height), and rotation angle (Degree).
+ */
 class Object {
 public:
     /**
-     * @brief This class provides a convenient way to represent objects in a 2D space.
-     * It stores the object's position (x, y), size (width, height), and rotation angle(Degree).
+     * @brief Constructs an Object with the specified parameters.
+     * 
+     * @param x The x-coordinate of the object's position. Default value is 0.
+     * @param y The y-coordinate of the object's position. Default value is 0.
+     * @param width The width of the object. Default value is 0.
+     * @param height The height of the object. Default value is 0.
+     * @param angle The rotation angle of the object in degrees. Default value is 0.
      */
     Object(float x = 0, float y = 0, float width = 0, float height = 0, float angle = 0);
 
-    virtual void update(float deltaTime) {};
-    virtual void events() {};
+    /**
+     * @brief Destroys the Object instance.
+     */
+    ~Object();
 
+    /**
+     * @brief Draws the object on the screen. Do not override this function unless you know what you are doing.
+     * 
+     * @param windowWidth The width of the window.
+     * @param windowHeight The height of the window.
+     */
+    virtual void draw(int windowWidth, int windowHeight);
+
+    /**
+     * @brief Gets the x-coordinate of the object's position.
+     * 
+     * @return The x-coordinate of the object's position.
+     */
     float getX() const;
+
+    /**
+     * @brief Gets the y-coordinate of the object's position.
+     * 
+     * @return The y-coordinate of the object's position.
+     */
     float getY() const;
+
+    /**
+     * @brief Gets the width of the object.
+     * 
+     * @return The width of the object.
+     */
     float getWidth() const;
+
+    /**
+     * @brief Gets the height of the object.
+     * 
+     * @return The height of the object.
+     */
     float getHeight() const;
+
+    /**
+     * @brief Gets the rotation angle of the object in degrees.
+     * 
+     * @return The rotation angle of the object in degrees.
+     */
     float getAngle() const;
 
+    /**
+     * @brief Gets the bounds of the object as an array of floats.
+     * The array contains the x-coordinate, y-coordinate, width, and height of the object, in that order.
+     * 
+     * @return The bounds of the object as an array of floats.
+     */
     float* getBounds() const;
 
     /**
-     * @brief Get the color of the object at the specified corner.
+     * @brief Gets the color of the object at the specified corner.
      * 
      * @param corner The corner index.
      * @return The color of the object as a glm::vec4.
      */
     glm::vec4 getColor(unsigned int corner) const;
 
+    /**
+     * @brief Sets the x-coordinate of the object's position.
+     * 
+     * @param x The new x-coordinate of the object's position.
+     */
     void setX(float x);
+
+    /**
+     * @brief Sets the y-coordinate of the object's position.
+     * 
+     * @param y The new y-coordinate of the object's position.
+     */
     void setY(float y);
+
+    /**
+     * @brief Sets the width of the object.
+     * 
+     * @param width The new width of the object.
+     */
     void setWidth(float width);
+
+    /**
+     * @brief Sets the height of the object.
+     * 
+     * @param height The new height of the object.
+     */
     void setHeight(float height);
 
     /**
-     * @brief Sets the rotation of the object.
+     * @brief Sets the rotation angle of the object in degrees.
      * 
-     * @param angle The rotation angle in degrees.
+     * @param angle The new rotation angle of the object in degrees.
      */
     void setRotation(float angle);
 
     /**
-     * Sets the color of the object.
+     * @brief Sets the color of the object.
      * 
      * @param r The red component of the color (0.0 - 255.0).
      * @param g The green component of the color (0.0 - 255.0).
@@ -69,63 +159,110 @@ public:
     void setColor(float r, float g, float b, float a = 1.0f, unsigned int corner = ALL_CORNERS);
 
     /**
-     * @brief Sets the Animation for the object.
+     * @brief Sets the animation of the object.
      * 
-     * @param animation A pointer to the Animation object.
-     * 
-     * @return A pointer to the old Animation object.
+     * @param paths The paths to the animation frames.
+     * @param fps The frames per second of the animation.
+     * @param speed The speed of the animation.
+     * @param flip Whether to flip the animation frames horizontally.
      */
-    Animation* setAnimation(Animation* animation);
+    void setAnimation(std::vector<std::string> paths, int fps, double speed, bool flip);
 
     /**
-     * @brief Returns the Animation associated with the object.
+     * @brief Checks if the animation of the object is valid.
      * 
-     * @return Pointer to the Animation.
+     * @return True if the animation is valid, false otherwise.
      */
-    Animation* getAnimation() const;
+    bool isAnimationValid();
 
     /**
-     * @brief This function calculates and returns the model matrix for the object based on its current position, rotation, and scale.
-     * The model matrix is a glm::mat4 object that represents the transformation applied to the object in the world space.
+     * @brief Closes the animation of the object.
+     */
+    void closeAnimation();
+
+    /**
+     * @brief Opens the animation of the object.
+     */
+    void openAnimation();
+
+    /**
+     * @brief Sets the buffers of the object.
      * 
-     * @param windowWidth The width of the window in pixels.
-     * @param windowHeight The height of the window in pixels.
-     * @return The model matrix for the object.
+     * @param mBuffers The buffers to set.
+     */
+    void setBuffers(std::shared_ptr<Buffers> mBuffers);
+
+    /**
+     * @brief Sets the shaders of the object.
+     * 
+     * @param vertexShaderSource The source code of the vertex shader.
+     * @param fragmentShaderSource The source code of the fragment shader.
+     */
+    void setShaders(const char* vertexShaderSource, const char* fragmentShaderSource);
+
+    /**
+     * @brief Shows the object.
+     */
+    void show();
+
+    /**
+     * @brief Hides the object.
+     */
+    void hide();
+
+    /**
+     * @brief Checks if the object is visible.
+     * 
+     * @return True if the object is visible, false otherwise.
+     */
+    bool isVisible() const;
+
+    /**
+     * @brief Gets the type of the object.
+     * 
+     * @return The type of the object.
+     */
+    ObjectType getType() const;
+
+protected:
+    /**
+     * @brief Gets the model matrix of the object.
+     * 
+     * @param windowWidth The width of the window.
+     * @param windowHeight The height of the window.
+     * @return The model matrix of the object as a glm::mat4.
      */
     glm::mat4 getModelMatrix(int windowWidth, int windowHeight) const;
 
     /**
-     * @brief Get the vertices of the object. 
-     * The vertices are in the order of top left, top right, bottom left, bottom right. 
-     * 
-     * @return std::vector<Vertex> The vertices of the object.
+     * @brief Updates the vertices of the object.
      */
-    std::vector<Vertex> getVertices() const;
+    void updateColorData();
 
-    /**
-     * @brief Returns the indices of the object.
-     * 
-     * @return std::vector<unsigned int> The indices of the object.
-     */
-    std::vector<unsigned int> getIndices() const;
+    Vertex* vertices; /**< The vertices of the object. */
+    int* indices; /**< The indices of the object. */
 
-    void show();
-    void hide();
+    float x; /**< The x-coordinate of the object's position. */
+    float y; /**< The y-coordinate of the object's position. */
+    float width; /**< The width of the object. */
+    float height; /**< The height of the object. */
+    float angle; /**< The rotation angle of the object in degrees. */
 
-    bool isVisible() const;
+    glm::vec4 topLeftColor; /**< The color of the top-left corner of the object. */
+    glm::vec4 topRightColor; /**< The color of the top-right corner of the object. */
+    glm::vec4 bottomLeftColor; /**< The color of the bottom-left corner of the object. */
+    glm::vec4 bottomRightColor; /**< The color of the bottom-right corner of the object. */
 
-protected:
-    float x, y, width, height, angle;
+    unsigned int startTimerID; /**< The timer ID that counts the time since the object was created. */
 
-    glm::vec4 topLeftColor;
-    glm::vec4 topRightColor;
-    glm::vec4 bottomLeftColor;
-    glm::vec4 bottomRightColor;
+    std::optional<std::unique_ptr<Animation>> animation; /**< The animation of the object. */
 
-private:
-    unsigned int startTimerID; // counts the time since the object was created
+    bool visible; /**< Whether the object is visible or not. */
 
-    Animation* animation;
+    std::optional<std::shared_ptr<Buffers>> buffers; /**< The buffers of the object. */
+    std::optional<std::shared_ptr<Shaders>> shaders; /**< The shaders of the object. */
 
-    bool visible;
+    bool animationClosed; /**< Whether the animation of the object is closed or not. */
+
+    ObjectType type; /**< The type of the object. */
 };

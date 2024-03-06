@@ -1,6 +1,12 @@
 #include "Physics.h"
 
-bool physics::isColliding(Object* object1, Object* object2) {
+#include "Engine.h"
+
+bool physics::isColliding(unsigned int objectID1, unsigned int objectID2) {
+
+    cast<Object> object1 = engine::getObject(objectID1);
+    cast<Object> object2 = engine::getObject(objectID2);
+
     float x1 = object1->getX();
     float y1 = object1->getY();
     float width1 = object1->getWidth();

@@ -2,6 +2,8 @@
 
 #include "sys/Logger.h"
 #include "sys/Timer.h"
+#include "sys/Engine.h"
+#include "sys/TextRendering.h"
 
 #include <algorithm>
 
@@ -9,29 +11,26 @@
 #include <windows.h>
 #endif
 
-SDL_Cursor* cursors::defaultCursor;
-SDL_Cursor* cursors::sizeWE;
-SDL_Cursor* cursors::sizeNESW;
-SDL_Cursor* cursors::sizeNS;
-SDL_Cursor* cursors::sizeNWSE;
-SDL_Cursor* cursors::sizeAll;
-SDL_Cursor* cursors::handCursor;
+// fonts
+unsigned int fonts::defaultFont;
 
-int Application::sessionTimer;
-int Application::frameTimer;
-double Application::checkPoint;
-int Application::currentFPS;
-int Application::lastFPS ;
-const char* Application::_name;
-const char* Application::_version;
-bool Application::_debugMode;
-bool Application::isInitSuccess;
-Window* Application::focusedWindow;
-GLenum Application::currentError;
+// Static variables
+
+int App::sessionTimer;
+int App::frameTimer;
+double App::checkPoint;
+int App::currentFPS;
+int App::lastFPS ;
+const char* App::_name;
+const char* App::_version;
+bool App::_debugMode;
+bool App::isInitSuccess;
+Window* App::focusedWindow;
+GLenum App::currentError;
 
 /* Implementation of Application class */
 
-bool Application::initApp(const char* name, const char* version, bool debugMode, int width, int height) {
+bool App::initApp(const char* name, const char* version, bool debugMode, int width, int height) {
     if (isInitSuccess) return true;
 
     _name = name;
@@ -39,45 +38,32 @@ bool Application::initApp(const char* name, const char* version, bool debugMode,
     _debugMode = debugMode;
 
     // Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) < 0) {
-        logSDLError();
-        return false;
-    }
+	if (glfwInit() != GLFW_TRUE) return false;
+
+    // Set error callback
+    glfwSetErrorCallback([](int error, const char* description) {
+        logError(description, error);
+    });
 
     // SDL Attributes
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
-    SDL_BlendMode(SDL_BLENDMODE_BLEND);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
     // Create the main window for application
     #ifdef _WIN32
         SetProcessDPIAware();
     #endif
     
-    focusedWindow = new Window(name, width, height, WINDOW_FLAGS);
+    focusedWindow = new Window(name, width, height);
 
-    if (!focusedWindow) {
-        logError("Main window cannot be created. ", 0);
-        logSDLError();
-        return false;
-    }
+    if (!focusedWindow) return false;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    // Create Cursors
-    cursors::defaultCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-    cursors::sizeWE = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
-    cursors::sizeNESW = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
-    cursors::sizeNS = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
-    cursors::sizeNWSE = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
-    cursors::sizeAll = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
-    cursors::handCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 
     // Create timers
     sessionTimer = timer::createTimer();
@@ -90,7 +76,7 @@ bool Application::initApp(const char* name, const char* version, bool debugMode,
     return isInitSuccess; // Initialization was successful
 }
 
-void Application::destroyApp() {
+void App::destroyApp() {
     delete focusedWindow;
 
     timer::killTimer(sessionTimer);
@@ -98,34 +84,38 @@ void Application::destroyApp() {
 
     isInitSuccess = false;
 
-    SDL_Quit();
+    glfwTerminate();
 }
 
-const char* Application::getName() {
+const char* App::getAppName() {
     return _name;
 }
 
-const char* Application::getVersion() {
+const char* App::getVersion() {
     return _version;
 }
 
-bool Application::isDebugging() {
+bool App::isDebugging() {
     return _debugMode;
 }
 
-double Application::getSessionTime() {
+bool App::isRunning() {
+    return !glfwWindowShouldClose(focusedWindow->getGLFWWindow());
+}
+
+double App::getSessionTime() {
     return timer::getTimeDiff(sessionTimer);
 }
 
-int Application::getFPS() {
+int App::getFPS() {
     return lastFPS;
 }
 
-void Application::operateFrame(int fpsCap) {
+void App::operateFrame(int fpsCap) {
     // Render newly created frame
     focusedWindow->renderFrame();
 
-    // update lastFPS every second
+    // update frame count of last second
     double diff = timer::getTimeDiff(sessionTimer);
 
     if (diff - checkPoint >= 1000) {
@@ -148,16 +138,44 @@ void Application::operateFrame(int fpsCap) {
     // Clear Frame
     focusedWindow->clearFrame();
 
+    // Check if an OpenGL error occurred
     GLenum newError = glGetError();
-    if (newError != currentError) logError("OpenGL error occured", newError);
+    if (newError != currentError) logError("OpenGL error occurred", newError);
     currentError = newError;
 }
 
-void Application::changeFocus(Window* newWindow) {
+void App::changeFocus(Window* newWindow) {
     delete focusedWindow;
     focusedWindow = newWindow;
 }
 
-Window* Application::getFocusedWindow() {
+Window* App::getFocusedWindow() {
     return focusedWindow;
+}
+
+void App::renderStats() {
+    text::setRendererColor(0.0f, 255.0f, 0.0f);
+    text::setRendererScale(0.5f);
+    text::setRendererX(10.0f);
+    text::setRendererY(10.0f);
+
+    text::renderText(DEF_FONT, "FPS: " + std::to_string(lastFPS));
+
+    text::setRendererY(30.0f);
+    std::string avg = std::to_string(benchmark::getAverageFrameTime(3)).substr(0, 5); // deleting last 3 zeros
+    text::renderText(DEF_FONT, "Average Frame Time: " + avg + "ms");
+
+    text::setRendererY(50.0f);
+    text::renderText(DEF_FONT, "Session Time: " + std::to_string((int)(getSessionTime()/1000)) + "s");
+
+    text::setRendererY(70.0f);
+    std::string benchmark = std::to_string(benchmark::getBenchmarkResult(3)).substr(0, 5);
+    text::renderText(DEF_FONT, "Last Benchmark Result: " + benchmark + "ms");
+
+    text::setRendererY(90.0f);
+    std::string lastFrameDuration = std::to_string(benchmark::getLastFrameDuration(3)).substr(0, 5);
+    text::renderText(DEF_FONT, "Last Frame Duration: " + lastFrameDuration + "ms");
+
+    text::setRendererY(110.0f);
+    text::renderText(DEF_FONT, "Object Count: " + std::to_string(engine::getTotalObjectCount()));
 }
