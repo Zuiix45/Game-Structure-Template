@@ -3,8 +3,6 @@
 #include <map>
 #include <chrono>
 
-#include <iomanip>
-#include <sstream>
 #include <glad/glad.h>
 
 namespace {
@@ -80,21 +78,9 @@ void benchmark::endBenchmark() {
     benchmarkTimerID = 0;
 }
 
-double benchmark::getLastFrameDuration(int precision) {
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(precision) << lastFrameDuration;
-    std::string str = ss.str();
-
-    return std::stod(str);
-}
-
-double benchmark::getBenchmarkResult(int precision) {
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(precision) << benchmarkResult;
-    std::string str = ss.str();
-
-    return std::stod(str);
-}
+double benchmark::getLastFrameDuration() { return lastFrameDuration; }
+double benchmark::getBenchmarkResult() { return benchmarkResult; }
+double benchmark::getAverageFrameTime() { return averageFrameTime; }
 
 void benchmark::countFrames() {
     totalRenderedFrames++;
@@ -103,11 +89,6 @@ void benchmark::countFrames() {
     timer::resetTimer(frameTimeCalcTimerID);
 }
 
-double benchmark::getAverageFrameTime(int precision) {
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(precision) << averageFrameTime;
-    std::string str = ss.str();
-
-
-    return std::stod(str);
+std::string benchmark::applyPrecision(double value, int precision) {
+    return std::to_string(value).substr(0, std::to_string(value).find(".") + precision + 1);
 }

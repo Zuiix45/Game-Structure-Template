@@ -7,12 +7,6 @@
 #define WINDOW_WIDTH App::getFocusedWindow()->getWidth()
 #define WINDOW_HEIGHT App::getFocusedWindow()->getHeight()
 
-namespace fonts {
-    extern unsigned int defaultFont;
-}
-
-#define DEF_FONT fonts::defaultFont
-
 /**
  * @brief The Application class provides methods for initializing and retrieving
  *        information about the application.

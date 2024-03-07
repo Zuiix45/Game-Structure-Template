@@ -41,7 +41,7 @@ namespace {
     int windowWidth, windowHeight;
 }
 
-void text::init(const std::string& fontsDirectory) {
+void fonts::init(const std::string& fontsDirectory, const std::string& defaultFontName, unsigned int defaultFontSize) {
     if (FT_Init_FreeType(&ft)) {
         logError("Failed to initialize FreeType library", FREETYPE_INITIALIZATION_FAILED);
         bool isInitialized = false;
@@ -76,9 +76,11 @@ void text::init(const std::string& fontsDirectory) {
     glBindVertexArray(0);
 
     isInitialized = true;
+
+    fonts::loadFont(defaultFontName, defaultFontSize);
 }
 
-unsigned int text::loadFont(const std::string& name, unsigned int size) {
+unsigned int fonts::loadFont(const std::string& name, unsigned int size) {
     if (!isInitialized) return 0;
 
     if (fontPathMap[name].empty()) {
@@ -144,9 +146,11 @@ unsigned int text::loadFont(const std::string& name, unsigned int size) {
     return id;
 }
 
-void text::destroy() {
+void fonts::destroy() {
     FT_Done_FreeType(ft);
 }
+
+/////////////////////
 
 void text::setRendererX(float x) { rendererPosition.x = x; }
 void text::setRendererY(float y) { rendererPosition.y = y; }

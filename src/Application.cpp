@@ -11,9 +11,6 @@
 #include <windows.h>
 #endif
 
-// fonts
-unsigned int fonts::defaultFont;
-
 // Static variables
 
 int App::sessionTimer;
@@ -162,18 +159,18 @@ void App::renderStats() {
     text::renderText(DEF_FONT, "FPS: " + std::to_string(lastFPS));
 
     text::setRendererY(30.0f);
-    std::string avg = std::to_string(benchmark::getAverageFrameTime(3)).substr(0, 5); // deleting last 3 zeros
+    std::string avg = benchmark::applyPrecision(benchmark::getAverageFrameTime(), 3);
     text::renderText(DEF_FONT, "Average Frame Time: " + avg + "ms");
 
     text::setRendererY(50.0f);
     text::renderText(DEF_FONT, "Session Time: " + std::to_string((int)(getSessionTime()/1000)) + "s");
 
     text::setRendererY(70.0f);
-    std::string benchmark = std::to_string(benchmark::getBenchmarkResult(3)).substr(0, 5);
+    std::string benchmark = benchmark::applyPrecision(benchmark::getBenchmarkResult(), 3);
     text::renderText(DEF_FONT, "Last Benchmark Result: " + benchmark + "ms");
 
     text::setRendererY(90.0f);
-    std::string lastFrameDuration = std::to_string(benchmark::getLastFrameDuration(3)).substr(0, 5);
+    std::string lastFrameDuration = benchmark::applyPrecision(benchmark::getLastFrameDuration(), 3);
     text::renderText(DEF_FONT, "Last Frame Duration: " + lastFrameDuration + "ms");
 
     text::setRendererY(110.0f);

@@ -44,7 +44,7 @@ unsigned int engine::registerObject(unsigned int layer, const std::string& objNa
     objectMap.insert(std::pair<unsigned int, cast<Object>>(objID, object));
 
     if (!object->isAnimationValid())
-        object->setAnimation(convertSpriteNameToList("placeholder"), 24, 1.0f, true); // static animation
+        object->loadAnimation(convertSpriteNameToList("placeholder"), 24, 1.0f, true); // static animation
 
     nameToID.insert(std::pair<std::string, unsigned int>(objName, objID));
     idToName.insert(std::pair<unsigned int, std::string>(objID, objName));

@@ -13,22 +13,12 @@
 #include <optional>
 #include <memory>
 
-#define TOP_LEFT_CORNER 0
-#define TOP_RIGHT_CORNER 1
-#define BOTTOM_LEFT_CORNER 2
-#define BOTTOM_RIGHT_CORNER 3
-#define ALL_CORNERS 4
-
 enum class ObjectType {
-    STATIC,
-    SUB_ENTITY,
-    ENTITY
+    STATIC, // only drawable object
+    SUB_ENTITY, // not movable but updatable object
+    ENTITY, // movable and updatable object
+    HITBOX // hitbox object
 };
-
-/**
- * @file Object.h
- * @brief This file contains the declaration of the Object class.
- */
 
 /**
  * @class Object
@@ -107,10 +97,10 @@ public:
     /**
      * @brief Gets the color of the object at the specified corner.
      * 
-     * @param corner The corner index.
+     * @param vertexIndex The index of vertex in the vertex list.
      * @return The color of the object as a glm::vec4.
      */
-    glm::vec4 getColor(unsigned int corner) const;
+    glm::vec4 getColor(unsigned int vertexIndex) const;
 
     /**
      * @brief Sets the x-coordinate of the object's position.
@@ -153,20 +143,31 @@ public:
      * @param r The red component of the color (0.0 - 255.0).
      * @param g The green component of the color (0.0 - 255.0).
      * @param b The blue component of the color (0.0 - 255.0).
-     * @param a The alpha component of the color (0.0 - 1.0). Default value is 1.0.
-     * @param corner The corner(s) to apply the color to. Default value is ALL_CORNERS(4).
+     * @param a The alpha component of the color (0.0 - 1.0).
+     * @param vertexIndex The index of vertex in the vertex list.
      */
-    void setColor(float r, float g, float b, float a = 1.0f, unsigned int corner = ALL_CORNERS);
+    void setColor(float r, float g, float b, float a, unsigned int vertexIndex);
+
+    void setAllColors(float r, float g, float b, float a = 1.0f);
 
     /**
-     * @brief Sets the animation of the object.
+     * @brief loads all sprites and creates the animation of the object.
      * 
      * @param paths The paths to the animation frames.
      * @param fps The frames per second of the animation.
      * @param speed The speed of the animation.
      * @param flip Whether to flip the animation frames horizontally.
      */
-    void setAnimation(std::vector<std::string> paths, int fps, double speed, bool flip);
+    void loadAnimation(std::vector<std::string> paths, int fps, double speed, bool flip);
+
+    /**
+     * Sets loaded key frames to the animation.
+     *
+     * @param keyframes A vector of unsigned integers representing the id of loaded key frames.
+     * @param fps The frames per second of the animation.
+     * @param speed The speed of the animation.
+     */
+    void setAnimation(std::vector<unsigned int> keyframes, int fps, double speed);
 
     /**
      * @brief Checks if the animation of the object is valid.
@@ -232,26 +233,19 @@ protected:
      * @param windowHeight The height of the window.
      * @return The model matrix of the object as a glm::mat4.
      */
-    glm::mat4 getModelMatrix(int windowWidth, int windowHeight) const;
+    virtual glm::mat4 getModelMatrix(int windowWidth, int windowHeight) const;
 
-    /**
-     * @brief Updates the vertices of the object.
-     */
-    void updateColorData();
+    virtual void createVertexData();
+    virtual void createIndexData();
 
-    Vertex* vertices; /**< The vertices of the object. */
-    int* indices; /**< The indices of the object. */
+    std::vector<Vertex> vertices; /**< The vertices of the object. */
+    std::vector<unsigned int> indices; /**< The indices of the object. */
 
     float x; /**< The x-coordinate of the object's position. */
     float y; /**< The y-coordinate of the object's position. */
     float width; /**< The width of the object. */
     float height; /**< The height of the object. */
     float angle; /**< The rotation angle of the object in degrees. */
-
-    glm::vec4 topLeftColor; /**< The color of the top-left corner of the object. */
-    glm::vec4 topRightColor; /**< The color of the top-right corner of the object. */
-    glm::vec4 bottomLeftColor; /**< The color of the bottom-left corner of the object. */
-    glm::vec4 bottomRightColor; /**< The color of the bottom-right corner of the object. */
 
     unsigned int startTimerID; /**< The timer ID that counts the time since the object was created. */
 

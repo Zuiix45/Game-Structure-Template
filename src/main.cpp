@@ -28,8 +28,7 @@ int main(int argc, char* args[]) {
 	engine::init("./data/images/");
 	callbacks::init(App::getFocusedWindow()->getGLFWWindow());
 	timer::init();
-	text::init("./data/fonts/");
-	fonts::defaultFont = text::loadFont("anta_regular", 32);
+	fonts::init("./data/fonts/", "anta_regular", 32);
 
 	App::getFocusedWindow()->setFullscreen(true);
 
@@ -37,7 +36,7 @@ int main(int argc, char* args[]) {
 
 	engine::registerObject(1, "stats_panel", panel);
 
-	panel->setColor(0, 0, 0, 0.7);
+	panel->setAllColors(0, 0, 0, 0.7);
 
 	int objSize = 100;
 
@@ -50,7 +49,7 @@ int main(int argc, char* args[]) {
 	while (App::isRunning()) {
 		input::pollEvents();
 
-		text::setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT); // remove this
+		text::setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT); // remove
 		engine::drawAllObjects(WINDOW_WIDTH, WINDOW_HEIGHT);
 		
 		App::renderStats();
@@ -63,7 +62,7 @@ int main(int argc, char* args[]) {
 	if (App::isDebugging())
     	system("pause");
 
-	text::destroy();
+	fonts::destroy();
 	App::destroyApp();
 
   	return 0;

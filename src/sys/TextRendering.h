@@ -2,13 +2,15 @@
 
 #include <string>
 
-namespace text {
-    void init(const std::string& fontsDirectory);
+namespace fonts {
+    void init(const std::string& fontsDirectory, const std::string& defaultFontName, unsigned int defaultFontSize);
     
     unsigned int loadFont(const std::string& name, unsigned int size);
 
     void destroy();
+}
 
+namespace text {
     void setRendererX(float x);
     void setRendererY(float y);
 
@@ -17,5 +19,7 @@ namespace text {
 
     void setWindowDimensions(int width, int height);
 
-    void renderText(unsigned int fontID, const std::string& text);
+    void renderText(unsigned int fontID, const std::string& text); // TODO: fix memory allocation
 }
+
+#define DEF_FONT 1

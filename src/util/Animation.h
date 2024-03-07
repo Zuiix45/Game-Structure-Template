@@ -5,8 +5,13 @@
 
 class Animation {
 public:
-    Animation(std::vector<std::string> spriteNames, int fps = 24, float speed = 1.0f, bool flip = true);
+    Animation(int fps = 24, float speed = 1.0f);
     ~Animation();
+
+    void calculateFrameTime(int fps, float speed);
+
+    void setKeyFrames(std::vector<unsigned int> newKeyframes);
+    void loadKeyFrames(std::vector<std::string> spriteNames, bool flip = true);
 
     void step();
     void deactivate();
@@ -16,7 +21,6 @@ public:
 private:
     std::vector<unsigned int> keyframes;
 
-    int fps;
     int currentKeyframe;
     double frameTime;
 

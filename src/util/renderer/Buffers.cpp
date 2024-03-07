@@ -52,8 +52,8 @@ void Buffers::unbind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Buffers::setVertexData(Vertex* vertices, int* indices) {
-    if (vertices == nullptr || indices == nullptr) {
+void Buffers::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    if (vertices.size() == 0 || indices.size() == 0) {
         logError("Vertices or indices are nullptr", VERTEX_OR_INDEX_NULLPTR);
         return;
     }

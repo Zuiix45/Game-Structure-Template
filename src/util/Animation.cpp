@@ -7,7 +7,28 @@
 
 #include <glad/glad.h>
 
-Animation::Animation(std::vector<std::string> spriteNames, int fps, float speed, bool flip) {
+Animation::Animation(int fps, float speed) {
+    calculateFrameTime(fps, speed);
+
+    currentKeyframe = 0;
+    animTimerID = timer::createTimer();
+    isLoaded = false;
+}
+
+Animation::~Animation() {
+    for (auto& keyframe : keyframes) glDeleteTextures(1, &keyframe);
+}
+
+void Animation::calculateFrameTime(int fps, float speed) {
+    frameTime = 1000.0f / fps / speed;
+}
+
+void Animation::setKeyFrames(std::vector<unsigned int> newKeyframes) {
+    keyframes = newKeyframes;
+    isLoaded = true;
+}
+
+void Animation::loadKeyFrames(std::vector<std::string> spriteNames, bool flip) {
     for (auto& name : spriteNames) {
         std::string path = engine::getSpritePath(name);
 
@@ -44,20 +65,9 @@ Animation::Animation(std::vector<std::string> spriteNames, int fps, float speed,
         loadedSprite.free();
     }
 
-    this->keyframes = keyframes;
-    this->fps = fps;
-    currentKeyframe = 0;
-
-    animTimerID = timer::createTimer();
-
-    frameTime = 1000.0f / fps / speed;
-    
     isLoaded = true;
 }
 
-Animation::~Animation() {
-    for (auto& keyframe : keyframes) glDeleteTextures(1, &keyframe);
-}
 
 void Animation::step() {
     if (isLoaded == false) return;

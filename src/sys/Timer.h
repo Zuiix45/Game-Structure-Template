@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /**
  * @brief Declarations for timer operations.
  */
@@ -55,20 +57,17 @@ namespace benchmark {
     /**
      * Returns the duration of the last frame in seconds.
      *
-     * @param precision The precision of the last frame duration. Defaults to 6.
      * @return The duration of the last frame in seconds.
      */
-    double getLastFrameDuration(int precision = 6);
+    double getLastFrameDuration();
 
     /**
      * Retrieves the benchmark result.
      *
      * This function returns the benchmark result as a double value.
-     *
-     * @param precision The precision of the benchmark result. Defaults to 6.
      * @return The benchmark result as a double value.
      */
-    double getBenchmarkResult(int precision = 6);
+    double getBenchmarkResult();
 
     /**
      * @brief Counts the total number of frames and calculates the average frame time.
@@ -79,5 +78,7 @@ namespace benchmark {
      * @brief Returns the average frame time in milliseconds.
      * @return The average frame time in milliseconds.
      */
-    double getAverageFrameTime(int precision = 6);
+    double getAverageFrameTime();
+
+    std::string applyPrecision(double value, int precision);
 }

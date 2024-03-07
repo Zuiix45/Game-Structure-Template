@@ -10,39 +10,21 @@
 Object::Object(float x, float y, float width, float height, float angle) 
             : x(x), y(y), width(width), height(height), angle(angle) {
 
-    topLeftColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    topRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    bottomLeftColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    bottomRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    setAllColors(255, 255, 255);
+
+    createVertexData();
+    createIndexData();
 
     startTimerID = timer::createTimer();
 
     animationClosed = false;
     visible = true;
 
-    indices = new int[6];
-    vertices = new Vertex[4];
-
-    indices[0] = 0;
-    indices[1] = 1;
-    indices[2] = 2;
-    indices[3] = 2;
-    indices[4] = 3;
-    indices[5] = 0;
-
-    vertices[0] = {glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)};
-    vertices[1] = {glm::vec3(0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)};
-    vertices[2] = {glm::vec3(0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)};
-    vertices[3] = {glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)};
-
     type = ObjectType::STATIC;
 }
 
 Object::~Object() {
     timer::killTimer(startTimerID);
-
-    delete vertices;
-    delete indices;
 }
 
 void Object::draw(int windowWidth, int windowHeight) {
@@ -59,8 +41,6 @@ void Object::draw(int windowWidth, int windowHeight) {
         shaders.value()->activate();
         glm::mat4 model = getModelMatrix(windowWidth, windowHeight);
         shaders.value()->setUniform("u_Model", (float*)&model, SHADER_MAT4);
-
-        updateColorData();
 
         buffers.value()->bind();
         buffers.value()->setVertexData(vertices, indices);
@@ -88,25 +68,8 @@ float* Object::getBounds() const {
     return bounds;
 }
 
-glm::vec4 Object::getColor(unsigned int corner) const {
-    switch (corner) {
-        case TOP_LEFT_CORNER:
-            return topLeftColor;
-            break;
-        case TOP_RIGHT_CORNER:
-            return topRightColor;
-            break;
-        case BOTTOM_LEFT_CORNER:
-            return bottomLeftColor;
-            break;
-        case BOTTOM_RIGHT_CORNER:
-            return bottomRightColor;
-            break;
-        default:
-            logError("Invalid corner specified", INVALID_CORNER_SPECIFIED);
-            return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            break;
-    }
+glm::vec4 Object::getColor(unsigned int vertexIndex) const {
+    return vertices.at(vertexIndex).color;
 }
 
 void Object::setX(float x) { this->x = x; }
@@ -115,34 +78,24 @@ void Object::setRotation(float angle) { this->angle = angle; }
 void Object::setWidth(float width) { this->width = width; }
 void Object::setHeight(float height) { this->height = height; }
 
-void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
-    switch (corner) {
-        case TOP_LEFT_CORNER:
-            topLeftColor = glm::vec4(r, g, b, a);
-            break;
-        case TOP_RIGHT_CORNER:
-            topRightColor = glm::vec4(r, g, b, a);
-            break;
-        case BOTTOM_LEFT_CORNER:
-            bottomLeftColor = glm::vec4(r, g, b, a);
-            break;
-        case BOTTOM_RIGHT_CORNER:
-            bottomRightColor = glm::vec4(r, g, b, a);
-            break;
-        case ALL_CORNERS:
-            topLeftColor = glm::vec4(r, g, b, a);
-            topRightColor = glm::vec4(r, g, b, a);
-            bottomLeftColor = glm::vec4(r, g, b, a);
-            bottomRightColor = glm::vec4(r, g, b, a);
-            break;
-        default:
-            logError("Invalid corner specified", INVALID_CORNER_SPECIFIED);
-            break;
+void Object::setColor(float r, float g, float b, float a, unsigned int vertexIndex) {
+    vertices.at(vertexIndex).color = glm::vec4(r/255.0f, g/255.0f, b/255.0f, a);
+}
+
+void Object::setAllColors(float r, float g, float b, float a) {
+    for (int i = 0; i < vertices.size(); i++) {
+        setColor(r, g, b, a, i);
     }
 }
 
-void Object::setAnimation(std::vector<std::string> paths, int fps, double speed, bool flip) {
-    animation = std::make_unique<Animation>(paths, fps, speed, flip);
+void Object::loadAnimation(std::vector<std::string> paths, int fps, double speed, bool flip) {
+    animation = std::make_unique<Animation>(fps, speed);
+    animation.value()->loadKeyFrames(paths, flip);
+}
+
+void Object::setAnimation(std::vector<unsigned int> keyframes, int fps, double speed) {
+    animation = std::make_unique<Animation>(fps, speed);
+    animation.value()->setKeyFrames(keyframes);
 }
 
 bool Object::isAnimationValid() {
@@ -180,16 +133,20 @@ glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
     return model;
 }
 
-void Object::updateColorData() {
-    glm::vec4 normalizedTopLeftColor = glm::vec4(topLeftColor.r/255.0f, topLeftColor.g/255.0f, topLeftColor.b/255.0f, topLeftColor.a);
-    glm::vec4 normalizedTopRightColor = glm::vec4(topRightColor.r/255.0f, topRightColor.g/255.0f, topRightColor.b/255.0f, topRightColor.a);
-    glm::vec4 normalizedBottomLeftColor = glm::vec4(bottomLeftColor.r/255.0f, bottomLeftColor.g/255.0f, bottomLeftColor.b/255.0f, bottomLeftColor.a);
-    glm::vec4 normalizedBottomRightColor = glm::vec4(bottomRightColor.r/255.0f, bottomRightColor.g/255.0f, bottomRightColor.b/255.0f, bottomRightColor.a);
+void Object::createVertexData() {
+    vertices.push_back({glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
+    vertices.push_back({glm::vec3(0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
+    vertices.push_back({glm::vec3(0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+}
 
-    vertices[0].color = normalizedTopLeftColor;
-    vertices[1].color = normalizedTopRightColor;
-    vertices[2].color = normalizedBottomRightColor;
-    vertices[3].color = normalizedBottomLeftColor;
+void Object::createIndexData() {
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(0);
 }
 
 void Object::show() {
