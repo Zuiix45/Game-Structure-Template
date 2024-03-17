@@ -58,10 +58,12 @@ void Buffers::setVertexData(const std::vector<Vertex>& vertices, const std::vect
         return;
     }
 
+    // TODO: check if vertexCount and indexCount are the same as the size of the vectors
+
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex), &vertices[0]);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexCount * sizeof(unsigned int), &indices[0]);
 }
 
-void Buffers::drawElements() const {
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+void Buffers::drawElements(int glDrawType) const {
+    glDrawElements(glDrawType, indexCount, GL_UNSIGNED_INT, 0);
 }

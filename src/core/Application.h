@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/Window.h"
+#include "../util/Window.h"
 
 #include <map>
 
@@ -93,6 +93,10 @@ public:
      */
     static void renderStats();
 
+    static bool isShowingStats();
+
+    static void toggleStats();
+
 private:
     static int sessionTimer;
     static int frameTimer; /**< this will reset every time when buffers swapped except vsync is on and fps cap is off. */
@@ -106,6 +110,8 @@ private:
     static const char* _version;
 
     static bool _debugMode; /**< Internal variable indicating whether debug mode is enabled. */
+
+    static bool showStats;
 
     static bool isInitSuccess;
 

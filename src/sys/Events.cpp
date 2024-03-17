@@ -1,6 +1,7 @@
 #include "Events.h"
 
 #include "Logger.h"
+#include "../core/Application.h"
 
 #include <vector>
 #include <map>
@@ -12,11 +13,11 @@ namespace {
 
     // keyboard input
     KeyEvent lastKeyEvent;
-    std::map<int, KeyEvent> keyStates;
+    std::map<Key, KeyEvent> keyStates;
 
     // mouse input
     MouseButtonEvent lastMouseButtonEvent;
-    std::map<int, MouseButtonEvent> mouseButtonStates;
+    std::map<MouseButton, MouseButtonEvent> mouseButtonStates;
 
     // mouse position
     double mouseX;
@@ -36,7 +37,7 @@ namespace {
     std::vector<std::string> lastDroppedFiles;
 
     // joysticks
-    std::vector<int> joysticks; // holds active jids
+    std::vector<Joystick> joysticks; // holds active joystick ids
 
     // cursor enter
     bool cursorEntered = false;
@@ -67,6 +68,11 @@ void callbacks::init(GLFWwindow* window) {
 void callbacks::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     lastKeyEvent = {key, scancode, action, mods};
     keyStates[key] = lastKeyEvent;
+
+    if (action == GLFW_RELEASE) {
+        if (key == GLFW_KEY_F3)
+            App::toggleStats();
+    }
 }
 
 void callbacks::charCallback(GLFWwindow* window, unsigned int codepoint) {
@@ -144,8 +150,16 @@ void callbacks::windowContentScaleCallback(GLFWwindow* window, float xScale, flo
 
 /// -- input namespace functions
 
-KeyEvent input::getKeyState(int key) { return keyStates[key]; }
-MouseButtonEvent input::getMouseButtonState(int button) { return mouseButtonStates[button]; }
+Scancode input::getScancode(Key key) {
+    return glfwGetKeyScancode((int)key);
+}
+
+bool input::isKeyPressed(Key key) { return keyStates[key].action == PRESS; }
+bool input::isKeyReleased(Key key) { return keyStates[key].action == RELEASE; }
+bool input::isKeyHeld(Key key) { return keyStates[key].action == REPEAT; }
+bool input::isPressedOrHeld(Key key) { return isKeyPressed(key) || isKeyHeld(key); }
+KeyEvent input::getKeyState(Key key) { return keyStates[key]; }
+MouseButtonEvent input::getMouseButtonState(MouseButton button) { return mouseButtonStates[button]; }
 void input::enableTextInput() { textInputEnabled = true; }
 void input::disableTextInput() { textInputEnabled = false; }
 void input::clearTextInput() { textInput = ""; }

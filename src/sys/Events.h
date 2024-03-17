@@ -2,17 +2,19 @@
 
 #include "../util/Window.h"
 
+#include "inputdefs.h"
+
 struct KeyEvent {
-    int key;
-    int scancode;
-    int action;
-    int mods;
+    Key key;
+    Scancode scancode;
+    State action;
+    Mod mods;
 };
 
 struct MouseButtonEvent {
-    int button;
-    int action;
-    int mods;
+    MouseButton button;
+    State action;
+    Mod mods;
     double x;
     double y;
 };
@@ -41,8 +43,15 @@ namespace callbacks {
 }
 
 namespace input {
-    KeyEvent getKeyState(int key);
-    MouseButtonEvent getMouseButtonState(int button);
+    bool isKeyPressed(Key key);
+    bool isKeyReleased(Key key);
+    bool isKeyHeld(Key key);
+    bool isPressedOrHeld(Key key);
+
+    KeyEvent getKeyState(Key key);
+    MouseButtonEvent getMouseButtonState(MouseButton button);
+
+    Scancode getScancode(Key key);
     
     void enableTextInput();
     void disableTextInput();

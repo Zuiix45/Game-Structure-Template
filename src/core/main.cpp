@@ -1,20 +1,32 @@
 #include "Application.h"
 
-#include "sys/Logger.h"
-#include "sys/Engine.h"
-#include "sys/Events.h"
-#include "sys/Timer.h"
-#include "sys/TextRendering.h"
+#include "../sys/Logger.h"
+#include "../sys/Engine.h"
+#include "../sys/Events.h"
+#include "../sys/Timer.h"
+#include "../sys/TextRendering.h"
+
+#include "../.Game/Player.h"
 
 #define NAME "Game"
 #define VERSION "0.0.0"
 #define LICENSE "LICENSE"
+
+#include <iostream>
 
 bool debugMode;
 /**
  * @brief Parse args (--help, --version, --debug)
  */
 bool parseArgs(char* args[]);
+
+void* operator new(size_t size) {
+	void* p = malloc(size);
+
+	std::cout << "Allocating " << size << " bytes at " << p << std::endl;
+
+	return p;
+}
 
 /**
  * @brief Starting location
@@ -30,20 +42,16 @@ int main(int argc, char* args[]) {
 	timer::init();
 	fonts::init("./data/fonts/", "anta_regular", 32);
 
-	App::getFocusedWindow()->setFullscreen(true);
+	// Stats panel
+	unsigned int id = engine::registerObject(1, "stats_panel", make<Object>(ObjectType::HUD, 0, 0, 300, 135, 0));
+	engine::getObject(id)->closeAnimation();
+	engine::getObject(id)->setAllColors(0, 0, 0, 0.5);
+	engine::getObject(id)->setVisibility(false);
 
-	auto panel = make<Object>(0, 0, 300, 135, 0);
+	// init game
+	physics::setGravity(9.8f);
 
-	engine::registerObject(1, "stats_panel", panel);
 
-	panel->setAllColors(0, 0, 0, 0.7);
-
-	int objSize = 100;
-
-	for (int x = 0; x <= 1920; x += objSize) {
-		for (int y = 0; y <= 1080; y += objSize)
-			engine::registerObject(2, "test_" + std::to_string(x) + "_" + std::to_string(y), make<Object>(x, y, objSize, objSize, 0));
-	}
 
 	// Starting point of main loop
 	while (App::isRunning()) {

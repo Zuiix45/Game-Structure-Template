@@ -50,8 +50,10 @@ public:
 
     /**
      * @brief Draws the elements using the buffer data.
+     * 
+     * @param glDrawType The type of draw to use. GL_TRIANGLES, GL_LINES, etc.
      */
-    void drawElements() const;
+    void drawElements(int glDrawType) const;
 
 private:
     unsigned int m_vao;

@@ -9,6 +9,10 @@
 #include "../util/renderer/Buffers.h"
 #include "../util/renderer/DefaultShaders.h"
 
+#include "../classes/Entity.h"
+#include "../classes/SubEntity.h"
+#include "../classes/NonEntity.h"
+
 #include <map>
 #include <glad/glad.h>
 
@@ -24,7 +28,8 @@ namespace {
 
 void engine::init(const char* imagesPath) {
     // TODO: add other buffer types
-    bufferList.push_back(std::make_shared<Buffers>(4, 6)); // rectangular buff
+    bufferList.push_back(std::make_shared<Buffers>(4, 6)); // filled rectangular buff
+    bufferList.push_back(std::make_shared<Buffers>(4, 8)); // empty rectangular buff
     
     // load all sprites
     std::vector<std::string> allPaths = files::getAllFilePaths(imagesPath);
@@ -49,10 +54,13 @@ unsigned int engine::registerObject(unsigned int layer, const std::string& objNa
     nameToID.insert(std::pair<std::string, unsigned int>(objName, objID));
     idToName.insert(std::pair<unsigned int, std::string>(objID, objName));
 
-    object->setBuffers(bufferList[RECTANGULAR_BUFFERS]);
-    object->setShaders(defaultVertexShaderSource, defaultFragmentShaderSource);
+    object->setID(objID);
 
     return objID;
+}
+
+std::shared_ptr<Buffers> engine::getBuffers(unsigned int bufferType) {
+    return bufferList[bufferType];
 }
 
 unsigned int engine::getTotalObjectCount() { return objectMap.size(); }
@@ -72,7 +80,31 @@ std::string engine::getObjectName(unsigned int objID) {
 void engine::drawAllObjects(int windowWidth, int windowHeight) {
     // reverse iterate through layers, so that the last(lower value) layer is drawn first
     for (auto i = layers.rbegin(); i != layers.rend(); i++) {
-        objectMap[i->second]->draw(windowWidth, windowHeight);
+        auto obj = objectMap[i->second];
+        
+        switch (obj->getType()) {
+            case ObjectType::ENTITY: {
+                cast<Entity> entity = std::dynamic_pointer_cast<Entity>(obj);
+                entity->events();
+                entity->update(entity->getElapsedTime());
+                break;
+            }
+
+            case ObjectType::SUB_ENTITY: {
+                cast<SubEntity> subEntity = std::dynamic_pointer_cast<SubEntity>(obj);
+                subEntity->events();
+                subEntity->update(subEntity->getElapsedTime());
+                break;
+            }
+            
+            case ObjectType::NON_ENTITY: {
+                cast<NonEntity> nonEntity = std::dynamic_pointer_cast<NonEntity>(obj);
+                nonEntity->events();
+                break;
+            }
+        }
+
+        obj->draw(windowWidth, windowHeight);
     }
 }
 

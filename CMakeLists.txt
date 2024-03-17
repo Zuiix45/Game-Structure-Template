@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.c
 
 set(CMAKE_BUILD_TYPE "Release")
 
-project(Game)
+project(Game VERSION 0.0.0)
 
 # Find required packages
 find_package(glm REQUIRED)

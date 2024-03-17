@@ -1,26 +1,32 @@
 #pragma once
 
-#include "../util/Object.h"
+#include "../headers.h"
 
 class Entity : public Object {
 public:
-    Entity(double mass);
+    Entity();
 
-    void update(double elapsedTime);
-    void setVelocityX(double velocityX);
-    void setVelocityY(double velocityY);
-    void setAccelerationX(double accelerationX);
-    void setAccelerationY(double accelerationY);
-    void setMass(double mass);
+    virtual void update(double elapsedTime) = 0; // override this function to update object
+    virtual void events() = 0; // override this function to handle events
 
-    double getVelocityX();
-    double getVelocityY();
-    double getAccelerationX();
-    double getAccelerationY();
-    double getMass();
+    double getElapsedTime();
+
+    void setVelocityX(float velocityX);
+    void setVelocityY(float velocityY);
+    void setAccelerationX(float accelerationX);
+    void setAccelerationY(float accelerationY);
+    void setMass(float mass);
+
+    float getVelocityX();
+    float getVelocityY();
+    float getAccelerationX();
+    float getAccelerationY();
+    float getMass();
 
 private:
-    double _velocityX, _velocityY; // m/s
-    double _accelerationX, _accelerationY; // m/s^2
-    double _mass; // kg
+    float _velocityX, _velocityY; // m/s
+    float _accelerationX, _accelerationY; // m/s^2
+    float _mass; // kg
+
+    unsigned int loopTimer;
 };

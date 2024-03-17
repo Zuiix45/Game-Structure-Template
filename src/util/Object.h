@@ -14,11 +14,14 @@
 #include <memory>
 
 enum class ObjectType {
-    STATIC, // only drawable object
+    NON_ENTITY, // only drawable object
     SUB_ENTITY, // not movable but updatable object
     ENTITY, // movable and updatable object
-    HITBOX // hitbox object
+    HITBOX, // hitbox object
+    HUD,
 };
+
+// TODO: add point system instead of using float
 
 /**
  * @class Object
@@ -36,7 +39,7 @@ public:
      * @param height The height of the object. Default value is 0.
      * @param angle The rotation angle of the object in degrees. Default value is 0.
      */
-    Object(float x = 0, float y = 0, float width = 0, float height = 0, float angle = 0);
+    Object(ObjectType type, float x = 0, float y = 0, float width = 0, float height = 0, float angle = 180);
 
     /**
      * @brief Destroys the Object instance.
@@ -44,7 +47,8 @@ public:
     ~Object();
 
     /**
-     * @brief Draws the object on the screen. Do not override this function unless you know what you are doing.
+     * @brief Draws the object on the screen. 
+     * Do not override this function unless you want to draw anything other than a rectangle.
      * 
      * @param windowWidth The width of the window.
      * @param windowHeight The height of the window.
@@ -138,7 +142,14 @@ public:
     void setRotation(float angle);
 
     /**
-     * @brief Sets the color of the object.
+     * @brief Scales the object by the specified factor.
+     *
+     * @param factor The scaling factor.
+     */
+    void scale(float factor);
+
+    /**
+     * @brief Sets the color of specified vertex.
      * 
      * @param r The red component of the color (0.0 - 255.0).
      * @param g The green component of the color (0.0 - 255.0).
@@ -148,10 +159,19 @@ public:
      */
     void setColor(float r, float g, float b, float a, unsigned int vertexIndex);
 
+    /**
+     * @brief Sets the color of all vertices of the object.
+     * Use this function to set the color of the object.
+     * 
+     * @param r The red component of the color (0.0 - 255.0).
+     * @param g The green component of the color (0.0 - 255.0).
+     * @param b The blue component of the color (0.0 - 255.0).
+     * @param a The alpha component of the color (0.0 - 1.0).
+     */
     void setAllColors(float r, float g, float b, float a = 1.0f);
 
     /**
-     * @brief loads all sprites and creates the animation of the object.
+     * @brief Loads all sprites and creates the animation of the object.
      * 
      * @param paths The paths to the animation frames.
      * @param fps The frames per second of the animation.
@@ -161,13 +181,30 @@ public:
     void loadAnimation(std::vector<std::string> paths, int fps, double speed, bool flip);
 
     /**
-     * Sets loaded key frames to the animation.
+     * @brief Sets loaded key frames to the animation.
      *
      * @param keyframes A vector of unsigned integers representing the id of loaded key frames.
      * @param fps The frames per second of the animation.
      * @param speed The speed of the animation.
      */
-    void setAnimation(std::vector<unsigned int> keyframes, int fps, double speed);
+    void createAnimation(std::vector<unsigned int> keyframes, int fps, double speed);
+
+    /**
+     * @brief Sets the animation of the object.
+     * 
+     * @code
+     * ```
+     * cast<Animation> newAnimation = make<Animation>(24, 1.0f); 
+     * ``` or
+     * ```
+     * auto newAnimation = make<Animation>(24, 1.0f);
+     * ```
+     * @endcode
+     * 
+     * 
+     * @param newAnimation The animation pointer to set.
+     */
+    void setAnimation(std::shared_ptr<Animation> newAnimation);
 
     /**
      * @brief Checks if the animation of the object is valid.
@@ -179,12 +216,32 @@ public:
     /**
      * @brief Closes the animation of the object.
      */
-    void closeAnimation();
+    void closeAnimation(bool loadDefaultShaders = true);
 
     /**
      * @brief Opens the animation of the object.
      */
-    void openAnimation();
+    void openAnimation(bool loadDefaultShaders = true);
+
+    /**
+     * @brief Flips the animation vertically.
+     */
+    void flipVertical();
+
+    /**
+     * @brief Flips the animation horizontally.
+     */
+    void flipHorizontal();
+
+    /**
+     * @brief Resets the vertical flip of the animation.
+     */
+    void resetVerticalFlip();
+
+    /**
+     * @brief Resets the horizontal flip of the animation.
+     */
+    void resetHorizontalFlip();
 
     /**
      * @brief Sets the buffers of the object.
@@ -202,14 +259,18 @@ public:
     void setShaders(const char* vertexShaderSource, const char* fragmentShaderSource);
 
     /**
-     * @brief Shows the object.
+     * @brief Sets the visibility of the object.
+     * 
+     * @param newVisibility Whether to show the object or not.
      */
-    void show();
+    void setVisibility(bool newVisibility);
 
     /**
-     * @brief Hides the object.
+     * @brief Sets the ID of the object.
+     * 
+     * @param newID The new ID of the object.
      */
-    void hide();
+    void setID(unsigned int newID);
 
     /**
      * @brief Checks if the object is visible.
@@ -225,6 +286,13 @@ public:
      */
     ObjectType getType() const;
 
+    /**
+     * @brief Gets the ID of the object.
+     * 
+     * @return The ID of the object.
+     */
+    unsigned int getID() const;
+
 protected:
     /**
      * @brief Gets the model matrix of the object.
@@ -235,8 +303,18 @@ protected:
      */
     virtual glm::mat4 getModelMatrix(int windowWidth, int windowHeight) const;
 
+    /**
+     * @brief Creates the vertex data of the object.
+     */
     virtual void createVertexData();
+
+    /**
+     * @brief Creates the index data of the object.
+     */
     virtual void createIndexData();
+
+    std::optional<std::shared_ptr<Buffers>> buffers; /**< The buffers of the object. */
+    std::optional<std::shared_ptr<Shaders>> shaders; /**< The shaders of the object. */
 
     std::vector<Vertex> vertices; /**< The vertices of the object. */
     std::vector<unsigned int> indices; /**< The indices of the object. */
@@ -247,14 +325,17 @@ protected:
     float height; /**< The height of the object. */
     float angle; /**< The rotation angle of the object in degrees. */
 
+private:
+    unsigned int id; /**< The unique identifier of the object. */
+
+    bool isAnimationFlippedVertical; /**< Whether the animation of the object is flipped vertically or not. */
+    bool isAnimationFlippedHorizontal; /**< Whether the animation of the object is flipped horizontally or not. */
+
     unsigned int startTimerID; /**< The timer ID that counts the time since the object was created. */
 
-    std::optional<std::unique_ptr<Animation>> animation; /**< The animation of the object. */
+    std::optional<std::shared_ptr<Animation>> animation; /**< The animation of the object. */
 
     bool visible; /**< Whether the object is visible or not. */
-
-    std::optional<std::shared_ptr<Buffers>> buffers; /**< The buffers of the object. */
-    std::optional<std::shared_ptr<Shaders>> shaders; /**< The shaders of the object. */
 
     bool animationClosed; /**< Whether the animation of the object is closed or not. */
 

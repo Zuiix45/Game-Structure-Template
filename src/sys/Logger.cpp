@@ -6,7 +6,7 @@
 
 #include "Files.h"
 
-#include "../Application.h"
+#include "../core/Application.h"
 
 namespace {
     bool outLogFile = true;

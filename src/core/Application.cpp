@@ -1,9 +1,10 @@
 #include "Application.h"
 
-#include "sys/Logger.h"
-#include "sys/Timer.h"
-#include "sys/Engine.h"
-#include "sys/TextRendering.h"
+#include "../sys/Logger.h"
+#include "../sys/Timer.h"
+#include "../sys/Engine.h"
+#include "../sys/Events.h"
+#include "../sys/TextRendering.h"
 
 #include <algorithm>
 
@@ -22,6 +23,7 @@ const char* App::_name;
 const char* App::_version;
 bool App::_debugMode;
 bool App::isInitSuccess;
+bool App::showStats;
 Window* App::focusedWindow;
 GLenum App::currentError;
 
@@ -33,6 +35,8 @@ bool App::initApp(const char* name, const char* version, bool debugMode, int wid
     _name = name;
     _version = version;
     _debugMode = debugMode;
+
+    showStats = false;
 
     // Initialize SDL
 	if (glfwInit() != GLFW_TRUE) return false;
@@ -151,6 +155,8 @@ Window* App::getFocusedWindow() {
 }
 
 void App::renderStats() {
+    if (!showStats) return;
+    
     text::setRendererColor(0.0f, 255.0f, 0.0f);
     text::setRendererScale(0.5f);
     text::setRendererX(10.0f);
@@ -175,4 +181,12 @@ void App::renderStats() {
 
     text::setRendererY(110.0f);
     text::renderText(DEF_FONT, "Object Count: " + std::to_string(engine::getTotalObjectCount()));
+}
+
+bool App::isShowingStats() {
+    return showStats;
+}
+void App::toggleStats() {
+    showStats = !showStats;
+    engine::getObject(engine::getObjectID("stats_panel"))->setVisibility(showStats);
 }

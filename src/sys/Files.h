@@ -20,16 +20,12 @@ struct Image {
  */
 namespace files {
     /**
-     * @brief Write data to a text file.
-     * 
-     * @param mPath The path of the file to be written.
-     * @param data The data to be written to the file.
-     * @param append Whether to append to the file (default: false).
+     * @brief Provides functions for file operations such as reading, writing, and manipulating file paths.
      */
     void writeFile(const std::string& mPath, const std::string& data, bool append = false);
 
     /**
-     * @brief Read data from a text file.
+     * @brief Reads data from a text file.
      *
      * @param mPath The path of the file to be read.
      * @return The data read from the file as a string.
@@ -39,63 +35,77 @@ namespace files {
     /**
      * @brief Normalizes the given path.
      *
-     * @param messyPath original path
-     * @return normalized path
+     * @param messyPath The original path.
+     * @return The normalized path.
      */
     std::string normalizePath(const std::string& messyPath);
 
     /**
-     * @brief Get path of root folder.
+     * @brief Gets the path of the root folder.
      *
-     * @return Path of root folder.
+     * @return The path of the root folder.
      */
     std::string getRootPath();
     
     /**
-     * @brief Get all file names inside a directory.
+     * @brief Gets all file names inside a directory.
      *
-     * @param directory the path of directory
-     * @return list of all files
+     * @param directory The path of the directory.
+     * @return A list of all file names.
      */
     std::vector<std::string> getFileNames(const std::string& directory);
 
     /**
-     * @brief Get all folder names inside a directory.
+     * @brief Gets all folder names inside a directory.
      *
-     * @param directory the path of directory
-     * @return list of all folders
+     * @param directory The path of the directory.
+     * @return A list of all folder names.
      */
     std::vector<std::string> getFolderNames(const std::string& directory);
 
+    /**
+     * @brief Gets all file paths inside a directory.
+     *
+     * @param directory The path of the directory.
+     * @return A list of all file paths.
+     */
     std::vector<std::string> getAllFilePaths(const std::string& directory);
 
+    /**
+     * @brief Extracts the file name from a path.
+     *
+     * @param path The original path.
+     * @return The extracted file name.
+     */
     std::string extractFileName(const std::string& path);
 
     /**
-     * @brief Erase all whitespaces at the start and end of a string
+     * @brief Erases all whitespaces at the start and end of a string.
      *
-     * @param str the original string
+     * @param str The original string.
+     * @return The trimmed string.
      */
     std::string trim(const std::string& str);
 
     /**
-     * @brief Split a string with delimiter
+     * @brief Splits a string with a delimiter.
      *
-     * @param str the original string
-     * @param delimiter char to split
+     * @param str The original string.
+     * @param delimiter The character to split the string.
+     * @return A vector of substrings.
      */
     std::vector<std::string> split(const std::string& str, char delimiter);
 
     /**
-     * @brief Check if a directory exists
+     * @brief Checks if a directory exists.
      *
-     * @param path the path of directory
-     * @return true if directory exists
+     * @param path The path of the directory.
+     * @return True if the directory exists, false otherwise.
      */
     bool isDirExist(const std::string& path);
     
     /**
-     * Checks if a file exists at the specified path.
+     * @brief Checks if a file exists at the specified path.
      * 
      * @param path The path of the file to check.
      * @return True if the file exists, false otherwise.
@@ -103,14 +113,14 @@ namespace files {
     bool isFileExist(const std::string& path);
 
     /**
-     * @brief Create directory
+     * @brief Creates a directory.
      *
-     * @param path the path of folder
+     * @param path The path of the folder to create.
      */
     void createDir(const std::string& path);
 
     /**
-     * Loads an image from the specified path.
+     * @brief Loads an image from the specified path.
      *
      * @param path The path to the image file.
      * @param flip Whether to flip the image vertically (default: true).
@@ -118,5 +128,11 @@ namespace files {
      */
     Image loadImage(const std::string& path, bool flip = true);
 
+    /**
+     * @brief Loads a binary file from the specified path.
+     *
+     * @param path The path to the binary file.
+     * @return A pointer to the loaded binary data.
+     */
     char* loadBinaryFile(const std::string& path);
 }

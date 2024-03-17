@@ -80,5 +80,12 @@ namespace benchmark {
      */
     double getAverageFrameTime();
 
+    /**
+     * Applies precision to a double value and returns it as a string.
+     *
+     * @param value The double value to apply precision to.
+     * @param precision The number of decimal places to keep.
+     * @return The double value with applied precision as a string.
+     */
     std::string applyPrecision(double value, int precision);
 }

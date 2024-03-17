@@ -19,6 +19,7 @@ void Image::free() {
 /////////////
 
 namespace {
+    // Helper function to split a string by a delimiter
     void splitTwice(std::vector<std::string>& vect, std::string data, char delimiter) {
         std::string parsed = data.substr(0, data.find(delimiter));
 
@@ -215,4 +216,35 @@ char* files::loadBinaryFile(const std::string& path) {
     file.close();
 
     return data;
+}
+
+std::vector<Image> loadSpriteSheet(const std::string& path, int spriteWidth, int spriteHeight, int spriteCount, bool flip = true) {
+    std::vector<Image> sprites;
+
+    Image spriteSheet = files::loadImage(path, flip);
+
+    if (!spriteSheet.isLoaded) return sprites;
+
+    for (int i = 0; i < spriteCount; i++) {
+        Image sprite;
+        sprite.width = spriteWidth;
+        sprite.height = spriteHeight;
+        sprite.nrChannels = spriteSheet.nrChannels;
+        sprite.data = new unsigned char[spriteWidth * spriteHeight * spriteSheet.nrChannels];
+
+        for (int y = 0; y < spriteHeight; y++) {
+            for (int x = 0; x < spriteWidth; x++) {
+                int index = (i * spriteWidth * spriteHeight + y * spriteWidth + x) * spriteSheet.nrChannels;
+                int spriteIndex = (y * spriteSheet.width + x + i * spriteWidth) * spriteSheet.nrChannels;
+
+                for (int c = 0; c < spriteSheet.nrChannels; c++) {
+                    sprite.data[index + c] = spriteSheet.data[spriteIndex + c];
+                }
+            }
+        }
+
+        sprites.push_back(sprite);
+    }
+
+    return sprites;
 }

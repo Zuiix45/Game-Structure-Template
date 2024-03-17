@@ -7,12 +7,14 @@
 #include <memory>
 
 #define RECTANGULAR_BUFFERS 0
+#define EMPTY_RECTANGULAR_BUFFERS 1
 
 #define cast std::shared_ptr // usage: cast<Object> obj = std::make_shared<Object>(60, 60, 60, 60, 60);
 #define make std::make_shared // usage: cast<Object> obj = make<Object>(60, 60, 60, 60, 60);
 
-#define getName(objectID) engine::getObjectName(objectID)
-#define getID(objectName) engine::getObjectID(objectName)
+#define obj(objectName) engine::getObject(engine::getObjectID(objectName))
+
+typedef std::vector<std::string> SpriteList;
 
 /**
  * @brief The engine namespace contains functions for managing objects in the system.
@@ -40,6 +42,8 @@ namespace engine {
     unsigned int registerObject(unsigned int layer, const std::string& objName, cast<Object> object);
 
     unsigned int getTotalObjectCount();
+
+    std::shared_ptr<Buffers> getBuffers(unsigned int bufferType);
 
     /**
      * @brief Retrieves an object with the specified ID.
