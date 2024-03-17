@@ -51,7 +51,8 @@ int main(int argc, char* args[]) {
 	// init game
 	physics::setGravity(9.8f);
 
-
+	unsigned int pid = engine::registerObject(1, "player", make<Player>(60, 250, 32, 32, 0.2));
+	engine::getObject(pid)->scale(2.5);
 
 	// Starting point of main loop
 	while (App::isRunning()) {
