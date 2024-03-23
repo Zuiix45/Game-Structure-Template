@@ -5,7 +5,10 @@
 #include "renderer/Shaders.h"
 #include "renderer/Buffers.h"
 
+#include "../classes/Camera.h"
+
 #include "Animation.h"
+#include "Window.h"
 
 #include <glm/glm.hpp>
 #include <map>
@@ -18,7 +21,8 @@ enum class ObjectType {
     SUB_ENTITY, // not movable but updatable object
     ENTITY, // movable and updatable object
     HITBOX, // hitbox object
-    HUD,
+    HUD_ELEMENT,
+    OBJECT
 };
 
 // TODO: add point system instead of using float
@@ -50,10 +54,10 @@ public:
      * @brief Draws the object on the screen. 
      * Do not override this function unless you want to draw anything other than a rectangle.
      * 
-     * @param windowWidth The width of the window.
-     * @param windowHeight The height of the window.
+     * @param window The window to draw on.
+     * @param camera The camera to use for drawing.
      */
-    virtual void draw(int windowWidth, int windowHeight);
+    virtual void draw(std::shared_ptr<Window> window, std::shared_ptr<Camera> camera);
 
     /**
      * @brief Gets the x-coordinate of the object's position.
@@ -266,6 +270,13 @@ public:
     void setVisibility(bool newVisibility);
 
     /**
+     * Enables or disables the camera effect on the object.
+     *
+     * @param effect A boolean value indicating whether to apply the camera effect or not.
+     */
+    void effectByCamera(bool effect);
+
+    /**
      * @brief Sets the ID of the object.
      * 
      * @param newID The new ID of the object.
@@ -278,6 +289,13 @@ public:
      * @return True if the object is visible, false otherwise.
      */
     bool isVisible() const;
+
+    /**
+     * Checks if the object is affected by the camera.
+     *
+     * @return true if the object is affected by the camera, false otherwise.
+     */
+    bool isAffectedByCamera() const;
 
     /**
      * @brief Gets the type of the object.
@@ -336,6 +354,7 @@ private:
     std::optional<std::shared_ptr<Animation>> animation; /**< The animation of the object. */
 
     bool visible; /**< Whether the object is visible or not. */
+    bool affectedByCamera; /**< Whether the object is affected by the camera or not. */
 
     bool animationClosed; /**< Whether the animation of the object is closed or not. */
 

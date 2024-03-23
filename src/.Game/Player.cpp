@@ -1,5 +1,7 @@
 #include "Player.h"
 
+#include "../core/Application.h"
+
 Player::Player(float x, float y, float width, float height, float baseSpeed) : baseSpeed(baseSpeed) {
     keyLeft = KEY_LEFT;
     keyRight = KEY_RIGHT;
@@ -8,6 +10,8 @@ Player::Player(float x, float y, float width, float height, float baseSpeed) : b
     setY(y);
     setWidth(width);
     setHeight(height);
+
+    jumpSpeed = baseSpeed * 2;
 
     ////////////
 
@@ -54,6 +58,10 @@ Player::Player(float x, float y, float width, float height, float baseSpeed) : b
 }
 
 void Player::update(double elapsedTime) {
+    engine::getCamera()->setXOffset(60);
+    engine::getCamera()->setYOffset(WINDOW_HEIGHT/2 - height/2);
+    engine::getCamera()->follow(getID());
+
     physics::accelerate(getID(), elapsedTime);
     physics::move(getID(), elapsedTime);
 

@@ -43,23 +43,27 @@ int main(int argc, char* args[]) {
 	fonts::init("./data/fonts/", "anta_regular", 32);
 
 	// Stats panel
-	unsigned int id = engine::registerObject(1, "stats_panel", make<Object>(ObjectType::HUD, 0, 0, 300, 135, 0));
+	unsigned int id = engine::registerObject(1, "stats_panel", make<Object>(ObjectType::HUD_ELEMENT, 0, 0, 300, 135, 0));
 	engine::getObject(id)->closeAnimation();
 	engine::getObject(id)->setAllColors(0, 0, 0, 0.5);
 	engine::getObject(id)->setVisibility(false);
 
 	// init game
-	physics::setGravity(9.8f);
+	physics::setGravity(0.001f);
 
-	unsigned int pid = engine::registerObject(1, "player", make<Player>(60, 250, 32, 32, 0.2));
-	engine::getObject(pid)->scale(2.5);
+	unsigned int pid = engine::registerObject(1, "player", make<Player>(0, 0, 80, 80, 0.5));
+
+	unsigned int aid = engine::registerObject(1, "a", make<Object>(ObjectType::OBJECT, 100, 100, 100, 100, 0));
+	engine::getObject(aid)->setAllColors(255, 255, 255, 1);
+	engine::getObject(aid)->closeAnimation();
+	engine::getObject(aid)->effectByCamera(true);
 
 	// Starting point of main loop
 	while (App::isRunning()) {
 		input::pollEvents();
 
 		text::setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT); // remove
-		engine::drawAllObjects(WINDOW_WIDTH, WINDOW_HEIGHT);
+		engine::drawAllObjects();
 		
 		App::renderStats();
 		App::operateFrame(0);

@@ -2,6 +2,8 @@
 
 SubEntity::SubEntity() : Object(ObjectType::SUB_ENTITY) {
     loopTimer = timer::createTimer();
+
+    effectByCamera(true); // all sub entities are affected by camera
 }
 
 double SubEntity::getElapsedTime() {

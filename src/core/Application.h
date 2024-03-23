@@ -3,6 +3,7 @@
 #include "../util/Window.h"
 
 #include <map>
+#include <memory>
 
 #define WINDOW_WIDTH App::getFocusedWindow()->getWidth()
 #define WINDOW_HEIGHT App::getFocusedWindow()->getHeight()
@@ -79,14 +80,14 @@ public:
      * 
      * @param newWindow new focused window
      */
-    static void changeFocus(Window* newWindow);
+    static void changeFocus(std::shared_ptr<Window> newWindow);
 
     /**
      * @brief Get the current focused Window 
      * 
      * @return Current focused window
      */
-    static Window* getFocusedWindow();
+    static std::shared_ptr<Window> getFocusedWindow();
 
     /**
      * Renders the statistics of the game.
@@ -115,7 +116,7 @@ private:
 
     static bool isInitSuccess;
 
-    static Window* focusedWindow;
+    static std::shared_ptr<Window> focusedWindow;
 
     static GLenum currentError;
 };

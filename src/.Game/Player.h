@@ -18,6 +18,7 @@ private:
     cast<Animation> animStartJump;
 
     float baseSpeed;
+    float jumpSpeed;
 
     bool isJumping = false;
 

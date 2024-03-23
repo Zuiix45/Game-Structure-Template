@@ -3,6 +3,8 @@
 #include "../sys/Logger.h"
 #include "../sys/Engine.h"
 
+#include "../core/Application.h"
+
 #include "renderer/DefaultShaders.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,6 +20,7 @@ Object::Object(ObjectType type, float x, float y, float width, float height, flo
 
     animationClosed = false;
     visible = true;
+    affectedByCamera = false;
 
     setBuffers(engine::getBuffers(RECTANGULAR_BUFFERS));
     setShaders(defaultVertexShaderSource, defaultFragmentShaderSource);
@@ -27,7 +30,7 @@ Object::~Object() {
     timer::killTimer(startTimerID);
 }
 
-void Object::draw(int windowWidth, int windowHeight) {
+void Object::draw(std::shared_ptr<Window> window, std::shared_ptr<Camera> camera) {
     if (!visible) return;
 
     bool isAnimationStepUp = false;
@@ -40,8 +43,17 @@ void Object::draw(int windowWidth, int windowHeight) {
     if (buffers.has_value() && shaders.has_value()) {
         // prepare shaders for drawing
         shaders.value()->activate();
-        glm::mat4 model = getModelMatrix(windowWidth, windowHeight);
+        glm::mat4 model = getModelMatrix(window->getWidth(), window->getHeight());
+        glm::mat4 view = window->getProjectionMatrix();
         shaders.value()->setUniform("u_Model", (float*)&model, SHADER_MAT4);
+        shaders.value()->setUniform("u_View", (float*)&view, SHADER_MAT4);
+
+        if (affectedByCamera) {
+            glm::mat4 view = camera->getViewMatrix();
+            glm::mat4 projection = camera->getProjectionMatrix();
+            shaders.value()->setUniform("u_View", (float*)&view, SHADER_MAT4);
+            shaders.value()->setUniform("u_Projection", (float*)&projection, SHADER_MAT4);
+        }
 
         // pass data to vram and draw
         buffers.value()->bind();
@@ -118,19 +130,25 @@ bool Object::isAnimationValid() {
 }
 
 void Object::closeAnimation(bool loadDefaultShaders) {
-    if (loadDefaultShaders) {
-        setShaders(defaultVertexShaderSource, defaultNoTextureFragmentShaderSource);
-    }
-
     animationClosed = true;
+
+    if (loadDefaultShaders) {
+        auto vertexShader = affectedByCamera ? defaultCameraVertexShaderSource : defaultVertexShaderSource;
+        auto fragmentShader = animationClosed ? defaultNoTextureFragmentShaderSource : defaultFragmentShaderSource;
+
+        setShaders(vertexShader, fragmentShader);
+    }
 }
 
 void Object::openAnimation(bool loadDefaultShaders) {
-    if (loadDefaultShaders) {
-        setShaders(defaultVertexShaderSource, defaultFragmentShaderSource);
-    }
-
     animationClosed = false;
+
+    if (loadDefaultShaders) {
+        auto vertexShader = affectedByCamera ? defaultCameraVertexShaderSource : defaultVertexShaderSource;
+        auto fragmentShader = animationClosed ? defaultNoTextureFragmentShaderSource : defaultFragmentShaderSource;
+
+        setShaders(vertexShader, fragmentShader);
+    }
 }
 
 void Object::flipVertical() {
@@ -182,16 +200,13 @@ void Object::setShaders(const char* vertexShaderSource, const char* fragmentShad
 }
 
 glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
-    // Normalize Values
-    float normalizedX = (x * 2 + width - windowWidth) / windowWidth;
-    float normalizedY = (-y * 2 - height + windowHeight) / windowHeight;
-    float normalizedScaleX = width / (windowWidth/2.0f);
-    float normalizedScaleY = height / (windowHeight/2.0f);
-
     // Create Transformation Matrix
+    float scaleX = width / (windowWidth/2.0f);
+    float scaleY = height / (windowHeight/2.0f);
+
     glm::mat4 model(1.0f);
-    model = glm::translate(model, glm::vec3(normalizedX, normalizedY, 1.0f));
-    model = glm::scale(model, glm::vec3(normalizedScaleX, normalizedScaleY, 1.0f));
+    model = glm::translate(model, glm::vec3(x + width/2.0f, y + height/2.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
     model = glm::rotate(model, glm::radians(-angle), glm::vec3(0.0f, 0.0f, 1.0f));
 
     return model;
@@ -199,10 +214,10 @@ glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
 
 void Object::createVertexData() {
     // vertex position, color, texture coordinates
-    vertices.push_back({glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
-    vertices.push_back({glm::vec3(0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
-    vertices.push_back({glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
 }
 
 void Object::createIndexData() {
@@ -215,8 +230,18 @@ void Object::createIndexData() {
     indices.push_back(0);
 }
 
+void Object::effectByCamera(bool effect) {
+    affectedByCamera = effect;
+
+    auto vertexShader = affectedByCamera ? defaultCameraVertexShaderSource : defaultVertexShaderSource;
+    auto fragmentShader = animationClosed ? defaultNoTextureFragmentShaderSource : defaultFragmentShaderSource;
+
+    setShaders(vertexShader, fragmentShader);
+}
+
 void Object::setVisibility(bool newVisibility) { visible = newVisibility; }
 void Object::setID(unsigned int newID) { id = newID; }
 bool Object::isVisible() const { return visible; }
+bool Object::isAffectedByCamera() const { return affectedByCamera; }
 ObjectType Object::getType() const { return type; }
 unsigned int Object::getID() const { return id; }

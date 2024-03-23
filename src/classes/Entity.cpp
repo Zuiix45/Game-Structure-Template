@@ -7,6 +7,8 @@ Entity::Entity() : Object(ObjectType::ENTITY) {
     _accelerationY = 0;
     _mass = 1;
     loopTimer = timer::createTimer();
+
+    effectByCamera(true); // all entities are affected by camera
 }
 
 double Entity::getElapsedTime() {

@@ -24,7 +24,7 @@ const char* App::_version;
 bool App::_debugMode;
 bool App::isInitSuccess;
 bool App::showStats;
-Window* App::focusedWindow;
+std::shared_ptr<Window> App::focusedWindow;
 GLenum App::currentError;
 
 /* Implementation of Application class */
@@ -58,7 +58,7 @@ bool App::initApp(const char* name, const char* version, bool debugMode, int wid
         SetProcessDPIAware();
     #endif
     
-    focusedWindow = new Window(name, width, height);
+    focusedWindow = std::make_shared<Window>(name, width, height);
 
     if (!focusedWindow) return false;
 
@@ -78,8 +78,6 @@ bool App::initApp(const char* name, const char* version, bool debugMode, int wid
 }
 
 void App::destroyApp() {
-    delete focusedWindow;
-
     timer::killTimer(sessionTimer);
     timer::killTimer(frameTimer);
 
@@ -145,12 +143,11 @@ void App::operateFrame(int fpsCap) {
     currentError = newError;
 }
 
-void App::changeFocus(Window* newWindow) {
-    delete focusedWindow;
+void App::changeFocus(std::shared_ptr<Window> newWindow) {
     focusedWindow = newWindow;
 }
 
-Window* App::getFocusedWindow() {
+std::shared_ptr<Window> App::getFocusedWindow() {
     return focusedWindow;
 }
 
@@ -180,7 +177,7 @@ void App::renderStats() {
     text::renderText(DEF_FONT, "Last Frame Duration: " + lastFrameDuration + "ms");
 
     text::setRendererY(110.0f);
-    text::renderText(DEF_FONT, "Object Count: " + std::to_string(engine::getTotalObjectCount()));
+    text::renderText(DEF_FONT, "Object Count: " + std::to_string(engine::getTotalObjectCount()-1)); // don't count stats panel
 }
 
 bool App::isShowingStats() {

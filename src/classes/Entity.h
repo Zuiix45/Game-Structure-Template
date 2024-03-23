@@ -2,6 +2,12 @@
 
 #include "../headers.h"
 
+/**
+ * @brief This class represents a entity objects.
+ * Entity objects are objects that are affected by physics and camera.
+ * They are the main objects that can be moved and interacted.
+ * 
+ */
 class Entity : public Object {
 public:
     Entity();

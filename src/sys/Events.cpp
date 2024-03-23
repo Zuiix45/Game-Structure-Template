@@ -144,6 +144,8 @@ void callbacks::windowMaximizeCallback(GLFWwindow* window, int maximized) {}
 
 void callbacks::framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+
+    App::getFocusedWindow()->updateWindowBounds();
 }
 
 void callbacks::windowContentScaleCallback(GLFWwindow* window, float xScale, float yScale) {}

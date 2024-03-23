@@ -2,6 +2,7 @@
 
 #include "../util/Object.h"
 #include "../util/Window.h"
+#include "../classes/Camera.h"
 
 #include <vector>
 #include <memory>
@@ -73,11 +74,8 @@ namespace engine {
      * @brief Draws all objects on the screen. 
      * This function should be called every frame.
      * All parameters will be normalized relative to window boundaries.
-     * 
-     * @param windowWidth The width of the window.
-     * @param windowHeight The height of the window.
      */
-    void drawAllObjects(int windowWidth, int windowHeight);
+    void drawAllObjects();
 
     /**
      * @brief Retrieves the sprite path for the specified sprite name.
@@ -94,4 +92,8 @@ namespace engine {
      * @return A vector of strings representing the sprite name.
      */
     std::vector<std::string> convertSpriteNameToList(const std::string& spriteName);
+
+    void setCamera(cast<Camera> camera);
+
+    cast<Camera> getCamera();
 }

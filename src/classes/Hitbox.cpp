@@ -21,13 +21,22 @@ Hitbox::Hitbox(unsigned int parentID, float relativeX, float relativeY, float wi
     createIndexData();
 }
 
-void Hitbox::draw(int windowWidth, int windowHeight) {
+void Hitbox::draw(std::shared_ptr<Window> window, std::shared_ptr<Camera> camera) {
     if (!App::isShowingStats()) return;
 
     if (buffers.has_value() && shaders.has_value()) {
         shaders.value()->activate();
-        glm::mat4 model = getModelMatrix(windowWidth, windowHeight);
+        glm::mat4 model = getModelMatrix(window->getWidth(), window->getHeight());
+        glm::mat4 view = window->getProjectionMatrix();
         shaders.value()->setUniform("u_Model", (float*)&model, SHADER_MAT4);
+        shaders.value()->setUniform("u_View", (float*)&view, SHADER_MAT4);
+
+        if (isAffectedByCamera() && camera != nullptr) {
+            glm::mat4 view = camera->getViewMatrix();
+            glm::mat4 projection = camera->getProjectionMatrix();
+            shaders.value()->setUniform("u_View", (float*)&view, SHADER_MAT4);
+            shaders.value()->setUniform("u_Projection", (float*)&projection, SHADER_MAT4);
+        }
 
         buffers.value()->bind();
         buffers.value()->setVertexData(vertices, indices);
@@ -48,10 +57,10 @@ void Hitbox::syncAngleWithParent() {
 void Hitbox::createVertexData() {
     if (vertices.size() > 0) vertices.clear();
 
-    vertices.push_back({glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(0.5f, -0.5f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
 }
 
 void Hitbox::createIndexData() {

@@ -13,6 +13,8 @@
 #include "../classes/SubEntity.h"
 #include "../classes/NonEntity.h"
 
+#include "../core/Application.h"
+
 #include <map>
 #include <glad/glad.h>
 
@@ -24,6 +26,8 @@ namespace {
     std::map<std::string, std::string> savedSpritePaths; // name, path
 
     std::vector<std::shared_ptr<Buffers>> bufferList;
+
+    std::shared_ptr<Camera> mainCamera;
 }
 
 void engine::init(const char* imagesPath) {
@@ -40,6 +44,9 @@ void engine::init(const char* imagesPath) {
         name = name.substr(0, name.find_last_of("."));
         savedSpritePaths.insert(std::pair<std::string, std::string>(name, nPath));
     }
+
+    // create default camera
+    mainCamera = std::make_shared<Camera>(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f);
 }
 
 unsigned int engine::registerObject(unsigned int layer, const std::string& objName, cast<Object> object) {
@@ -77,8 +84,11 @@ std::string engine::getObjectName(unsigned int objID) {
     return idToName[objID];
 }
 
-void engine::drawAllObjects(int windowWidth, int windowHeight) {
-    // reverse iterate through layers, so that the last(lower value) layer is drawn first
+void engine::drawAllObjects() {
+    // calculate view matrix
+    mainCamera->calculateViewMatrix();
+
+    // reverse iterate through layers, so that the last(lower value) layer is drawn firsts
     for (auto i = layers.rbegin(); i != layers.rend(); i++) {
         auto obj = objectMap[i->second];
         
@@ -104,7 +114,7 @@ void engine::drawAllObjects(int windowWidth, int windowHeight) {
             }
         }
 
-        obj->draw(windowWidth, windowHeight);
+        obj->draw(App::getFocusedWindow(), mainCamera);
     }
 }
 
@@ -117,3 +127,6 @@ std::vector<std::string> engine::convertSpriteNameToList(const std::string& spri
     result.push_back(spriteName);
     return result;
 }
+
+void engine::setCamera(cast<Camera> camera) { mainCamera = camera; }
+cast<Camera> engine::getCamera() { return mainCamera; }

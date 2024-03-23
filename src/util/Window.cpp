@@ -8,6 +8,8 @@
 #include <sstream>
 #include <map>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 /* Implementation of Window class */
 
 Window::Window(const char* title, int width, int height) {
@@ -22,6 +24,8 @@ Window::Window(const char* title, int width, int height) {
 
     _width = width;
     _height = height;
+
+    _projectionMatrix = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
     if (!_GLFWWindow) return;
 
@@ -49,7 +53,7 @@ void Window::clearFrame() {
 
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::setVsync(bool interval) {
@@ -75,6 +79,8 @@ void Window::setBounds(int newWidth, int newHeight) {
 
     _width = newWidth;
     _height = newHeight;
+
+    _projectionMatrix = glm::ortho(0.0f, static_cast<float>(newWidth), static_cast<float>(newHeight), 0.0f, -1.0f, 1.0f);
 }
 
 void Window::setLocation(int x, int y) {
@@ -97,11 +103,17 @@ void Window::updateWindowBounds() {
     _width = width;
     _height = height;
 
+    _projectionMatrix = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+
     int x, y;
     glfwGetWindowPos(_GLFWWindow, &x, &y);
 
     _x = x;
     _y = y;
+}
+
+glm::mat4 Window::getProjectionMatrix() {
+    return _projectionMatrix;
 }
 
 GLFWwindow* Window::getGLFWWindow() { return _GLFWWindow; }

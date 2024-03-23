@@ -111,6 +111,8 @@ public:
      */
     void updateWindowBounds();
 
+    glm::mat4 getProjectionMatrix();
+
     /**
      * @brief Retrieves the GLFW window object.
      * 
@@ -120,6 +122,8 @@ public:
 
 private:
     GLFWwindow* _GLFWWindow; /**< Pointer to the GLFW window. */
+
+    glm::mat4 _projectionMatrix;
 
     int _width;
     int _height;
