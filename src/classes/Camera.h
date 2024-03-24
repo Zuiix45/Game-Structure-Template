@@ -5,8 +5,14 @@
 class Camera {
     public:
         Camera(float x, float y, float width, float height, float zoom = 1.0f);
-
+        
         void follow(unsigned int objectID);
+
+        void calculateViewMatrix();
+        void calculateProjectionMatrix();
+
+        glm::mat4 getViewMatrix();
+        glm::mat4 getProjectionMatrix();
 
         void setX(float x);
         void setY(float y);
@@ -16,11 +22,13 @@ class Camera {
         void setWidth(float width);
         void setHeight(float height);
 
-        void calculateViewMatrix();
-        void calculateProjectionMatrix();
-
-        glm::mat4 getViewMatrix();
-        glm::mat4 getProjectionMatrix();
+        float getX();
+        float getY();
+        float getXOffset();
+        float getYOffset();
+        float getZoom();
+        float getWidth();
+        float getHeight();
 
     private:
         float x, y;

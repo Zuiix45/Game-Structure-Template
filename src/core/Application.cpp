@@ -151,7 +151,7 @@ std::shared_ptr<Window> App::getFocusedWindow() {
     return focusedWindow;
 }
 
-void App::renderStats() {
+void App::drawStats() {
     if (!showStats) return;
     
     text::setRendererColor(0.0f, 255.0f, 0.0f);

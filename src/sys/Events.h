@@ -48,6 +48,9 @@ namespace input {
     bool isKeyHeld(Key key);
     bool isPressedOrHeld(Key key);
 
+    double getTotalScrollX();
+    double getTotalScrollY(); 
+
     KeyEvent getKeyState(Key key);
     MouseButtonEvent getMouseButtonState(MouseButton button);
 

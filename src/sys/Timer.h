@@ -41,6 +41,8 @@ namespace timer {
      * @param milliseconds duration in milliseconds.
      */
     void delay(double milliseconds);
+
+    std::string getOStime();
 }
 
 namespace benchmark {

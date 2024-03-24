@@ -53,3 +53,11 @@ void Camera::setHeight(float height) {
     this->height = height;
     calculateProjectionMatrix();
 }
+
+float Camera::getX() { return x; }
+float Camera::getY() { return y; }
+float Camera::getXOffset() { return xOffset; }
+float Camera::getYOffset() { return yOffset; }
+float Camera::getZoom() { return zoom; }
+float Camera::getWidth() { return width; }
+float Camera::getHeight() { return height; }

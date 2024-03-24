@@ -3,6 +3,7 @@
 #include "Logger.h"
 
 #include <fstream>
+#include <sstream>
 #include <filesystem>
 #include <algorithm> 
 #include <functional> 
@@ -91,7 +92,20 @@ std::string files::readFile(const std::string& mPath) {
 }
 
 std::string files::normalizePath(const std::string& messyPath) {
-    std::filesystem::path path(messyPath);
+    std::string totalPath = messyPath;
+    std::string rootPath = getRootPath();
+
+    // includes "./" or ".\", does not include ".." and the root contains "src" folder
+    if ((messyPath.find("./")  != std::string::npos || messyPath.find(".\\") != std::string::npos) && 
+         messyPath.find("..") == std::string::npos &&
+         rootPath.find("src") != std::string::npos) {
+
+        std::string projectRoot = rootPath.substr(0, getRootPath().find("src"));
+
+        totalPath = projectRoot + messyPath;
+    }
+
+    std::filesystem::path path(totalPath);
     std::filesystem::path canonicalPath = std::filesystem::weakly_canonical(path);
     std::string nPath = canonicalPath.make_preferred().string();
 
@@ -125,6 +139,11 @@ std::vector<std::string> files::getAllFilePaths(const std::string& directory) {
     std::vector<std::string> result;
 
     std::string nDirectory = normalizePath(directory);
+
+    if (!isDirExist(nDirectory)) {
+        logError("Directory does not exist: " + nDirectory, FILE_NOT_FOUND);
+        return result;
+    }
 
     for(auto& path : std::filesystem::recursive_directory_iterator(normalizePath(nDirectory)))
         if (path.is_regular_file())

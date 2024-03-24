@@ -2,6 +2,7 @@
 
 #include <map>
 #include <chrono>
+#include <ctime>
 
 #include <glad/glad.h>
 
@@ -63,6 +64,18 @@ void timer::delay(double milliseconds) {
         if ((ns - diff) <= 0)
             break;
     }
+}
+
+std::string timer::getOStime() {
+    std::time_t currentTime = std::time(nullptr);
+
+    // Formatting the time into a string
+    char buffer[80]; // Buffer to hold the formatted time
+    std::strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", std::localtime(&currentTime));
+    
+    std::string currentTimeString(buffer); // Convert char buffer to string
+
+    return currentTimeString;
 }
 
 // Benchmark functions

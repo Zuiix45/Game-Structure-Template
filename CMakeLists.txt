@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.2...3.5)
 
 # Set C++ standard and flags
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stack-protector")
 
 # Use vcpkg toolchain file. This needs to be at the top of the file
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
@@ -52,6 +51,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # Copy data folder to the binary folder
 
 add_custom_target(copy-runtime-files ALL
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/bin/data
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_SOURCE_DIR}/bin/data)
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/bin/Debug/data
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_SOURCE_DIR}/bin/Debug/data)
     

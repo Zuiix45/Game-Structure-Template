@@ -92,7 +92,7 @@ public:
     /**
      * Renders the statistics of the game.
      */
-    static void renderStats();
+    static void drawStats();
 
     static bool isShowingStats();
 

@@ -24,8 +24,8 @@ namespace {
     double mouseY;
 
     // scroll input
-    double scrollX;
-    double scrollY;
+    double totalScrollX;
+    double totalScrollY;
 
     // window focus
     bool windowFocused = false;
@@ -88,8 +88,8 @@ void callbacks::dropCallback(GLFWwindow* window, int count, const char** paths) 
 }
 
 void callbacks::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    scrollX = xoffset;
-    scrollY = yoffset;
+    totalScrollX += xoffset;
+    totalScrollY += yoffset;
 }
 
 void callbacks::monitorCallback(GLFWmonitor* monitor, int event) {}
@@ -160,6 +160,8 @@ bool input::isKeyPressed(Key key) { return keyStates[key].action == PRESS; }
 bool input::isKeyReleased(Key key) { return keyStates[key].action == RELEASE; }
 bool input::isKeyHeld(Key key) { return keyStates[key].action == REPEAT; }
 bool input::isPressedOrHeld(Key key) { return isKeyPressed(key) || isKeyHeld(key); }
+double input::getTotalScrollX() { return totalScrollX; }
+double input::getTotalScrollY() { return totalScrollY; }
 KeyEvent input::getKeyState(Key key) { return keyStates[key]; }
 MouseButtonEvent input::getMouseButtonState(MouseButton button) { return mouseButtonStates[button]; }
 void input::enableTextInput() { textInputEnabled = true; }

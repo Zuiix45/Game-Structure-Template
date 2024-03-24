@@ -20,7 +20,12 @@ private:
     float baseSpeed;
     float jumpSpeed;
 
+    float middleAreaX, middleAreaY;
+    float middleAreaWidth, middleAreaHeight;
+
     bool isJumping = false;
+
+    bool isCamFree = false; // true if player is in the middle of the screen
 
     float hMax;
 };

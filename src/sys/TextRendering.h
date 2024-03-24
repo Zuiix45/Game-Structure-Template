@@ -17,8 +17,6 @@ namespace text {
     void setRendererScale(float scale);
     void setRendererColor(float r, float g, float b, float a = 1.0f);
 
-    void setWindowDimensions(int width, int height);
-
     void renderText(unsigned int fontID, const std::string& text); // TODO: fix memory allocation
 }
 

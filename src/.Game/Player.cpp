@@ -13,6 +13,8 @@ Player::Player(float x, float y, float width, float height, float baseSpeed) : b
 
     jumpSpeed = baseSpeed * 2;
 
+    hMax = 0;
+
     ////////////
 
     SpriteList spritesStand;
@@ -55,11 +57,14 @@ Player::Player(float x, float y, float width, float height, float baseSpeed) : b
     ////////
 
     setAccelerationY(physics::getGravity());
+
+    ///////
 }
 
 void Player::update(double elapsedTime) {
     engine::getCamera()->setXOffset(60);
     engine::getCamera()->setYOffset(WINDOW_HEIGHT/2 - height/2);
+
     engine::getCamera()->follow(getID());
 
     physics::accelerate(getID(), elapsedTime);
@@ -77,14 +82,14 @@ void Player::events() {
         // player moves lefts
         setVelocityX(-baseSpeed);
         setAnimation(animWalk);
-        resetHorizontalFlip();
+        flipHorizontal();
     }
 
     if (input::isPressedOrHeld(keyRight) && !isJumping) {
         // player moves right
         setVelocityX(baseSpeed);
         setAnimation(animWalk);
-        flipHorizontal();
+        resetHorizontalFlip();
     }
 
     if (input::isKeyReleased(keyLeft) && input::isKeyReleased(keyRight) && !isJumping) {

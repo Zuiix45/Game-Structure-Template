@@ -21,6 +21,8 @@ Object::Object(ObjectType type, float x, float y, float width, float height, flo
     animationClosed = false;
     visible = true;
     affectedByCamera = false;
+    isAnimationFlippedHorizontal = false;
+    isAnimationFlippedVertical = false;
 
     setBuffers(engine::getBuffers(RECTANGULAR_BUFFERS));
     setShaders(defaultVertexShaderSource, defaultFragmentShaderSource);

@@ -36,7 +36,7 @@ Window::Window(const char* title, int width, int height) {
         logError("OpenGL could not initialized correctly. ", OPENGL_INITIALIZATION_ERROR);
 
     // Vsync
-    setVsync(0);
+    setVsync(1);
 }
 
 Window::~Window() { glfwDestroyWindow(_GLFWWindow); }

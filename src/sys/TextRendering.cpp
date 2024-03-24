@@ -6,6 +6,8 @@
 #include "../util/renderer/Shaders.h"
 #include "../util/renderer/DefaultShaders.h"
 
+#include "../core/Application.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -157,16 +159,11 @@ void text::setRendererY(float y) { rendererPosition.y = y; }
 void text::setRendererScale(float scale) { rendererScale = scale; }
 void text::setRendererColor(float r, float g, float b, float a) { rendererColor = glm::vec4(r, g, b, a); }
 
-void text::setWindowDimensions(int width, int height) {
-    windowWidth = width;
-    windowHeight = height;
-}
-
 void text::renderText(unsigned int fontID, const std::string& text) {
     if (!isInitialized || fontID == 0 || fontMap[fontID].empty()) return;
 
     glm::vec4 color = { rendererColor.r/255.0f, rendererColor.g/255.0f, rendererColor.b/255.0f, rendererColor.a };
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.0f);
 
     shaders->activate();
     shaders->setUniform("projection", (float*)&projection, SHADER_MAT4);

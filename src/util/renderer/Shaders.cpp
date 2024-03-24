@@ -4,6 +4,7 @@
 
 #include "DefaultShaders.h"
 
+#include <vector>
 #include <glad/glad.h>
 
 Shaders::Shaders(std::string vertexShaderSource, std::string fragmentShaderSource) {
@@ -86,15 +87,15 @@ void Shaders::CompileShaders() {
         GLint log_length = 0;
         glGetShaderiv(m_VertexShader, GL_INFO_LOG_LENGTH, &log_length);
 
-        GLchar log[log_length];
+        std::vector<GLchar> log(log_length);
 
-        glGetShaderInfoLog(m_VertexShader, log_length, &log_length, log);
+        glGetShaderInfoLog(m_VertexShader, log_length, &log_length, log.data());
 
         for (int i = 0; i < log_length; i++) {
             if (log[i] == '\n') log[i] = ' ';
         }
 
-        std::string errorMsg = "Vertex shader compilation failed: " + std::string(log);
+        std::string errorMsg = "Vertex shader compilation failed: " + std::string(log.data());
 
         logError(errorMsg, glGetError());
         return;
@@ -105,15 +106,15 @@ void Shaders::CompileShaders() {
         GLint log_length = 0;
         glGetShaderiv(m_FragmentShader, GL_INFO_LOG_LENGTH, &log_length);
 
-        GLchar log[log_length];
+        std::vector<GLchar> log(log_length);
 
-        glGetShaderInfoLog(m_FragmentShader, log_length, &log_length, log);
+        glGetShaderInfoLog(m_FragmentShader, log_length, &log_length, log.data());
 
         for (int i = 0; i < log_length; i++) {
             if (log[i] == '\n') log[i] = ' ';
         }
 
-        std::string errorMsg = "Fragment shader compilation failed: " + std::string(log);
+        std::string errorMsg = "Fragment shader compilation failed: " + std::string(log.data());
 
         logError(errorMsg, glGetError());
         return;
