@@ -11,9 +11,8 @@ Entity::Entity() : Object(ObjectType::ENTITY) {
     effectByCamera(true); // all entities are affected by camera
 }
 
-double Entity::getElapsedTime() {
+double Entity::getFrameTime() {
     auto elapsedTime = timer::getTimeDiff(loopTimer);
-    timer::resetTimer(loopTimer);
     return elapsedTime;
 }
 

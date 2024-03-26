@@ -32,7 +32,7 @@ namespace logger {
     void _logInfo(const std::string& info);
 
     void printHelp();
-    void printVersion(const char* name, const char* version, const char* license);
+    void printVersion(const char* name, const char* version);
 
     int enterBeforeClose();
 

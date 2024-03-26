@@ -30,7 +30,7 @@ namespace engine {
      * 
      * @param placeholderImagePath The path of the placeholder image.
      */
-    void init(const char* placeholderImagePath);
+    void init(const std::string& placeholderImagePath);
 
     /**
      * @brief Creates an object in the specified layer.

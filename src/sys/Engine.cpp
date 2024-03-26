@@ -30,7 +30,7 @@ namespace {
     std::shared_ptr<Camera> mainCamera;
 }
 
-void engine::init(const char* imagesPath) {
+void engine::init(const std::string& imagesPath) {
     // TODO: add other buffer types
     bufferList.push_back(std::make_shared<Buffers>(4, 6)); // filled rectangular buff
     bufferList.push_back(std::make_shared<Buffers>(4, 8)); // empty rectangular buff
@@ -96,14 +96,14 @@ void engine::drawAllObjects() {
             case ObjectType::ENTITY: {
                 cast<Entity> entity = std::dynamic_pointer_cast<Entity>(obj);
                 entity->events();
-                entity->update(entity->getElapsedTime());
+                entity->update(entity->getFrameTime());
                 break;
             }
 
             case ObjectType::SUB_ENTITY: {
                 cast<SubEntity> subEntity = std::dynamic_pointer_cast<SubEntity>(obj);
                 subEntity->events();
-                subEntity->update(subEntity->getElapsedTime());
+                subEntity->update(subEntity->getFrameTime());
                 break;
             }
             

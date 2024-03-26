@@ -15,7 +15,14 @@ public:
     virtual void update(double elapsedTime) = 0; // override this function to update object
     virtual void events() = 0; // override this function to handle events
 
-    double getElapsedTime();
+    /**
+     * @brief Returns the elapsed time since the last execution of this object in the last frame.
+     * It is used for calculating elapsed time for "update" function.
+     * WARNING: This function is called automatically per frame by the engine.
+     * 
+     * @return double elapsed time in milliseconds
+     */
+    double getFrameTime();
 
     void setVelocityX(float velocityX);
     void setVelocityY(float velocityY);

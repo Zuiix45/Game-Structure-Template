@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../util/Window.h"
+#include "../sys/Logger.h"
 
 #include <map>
 #include <memory>
@@ -16,16 +17,21 @@ class App {
 public:
     /**
      * @brief Initializes the application with the provided parameters.
-     *
+     * 
      * @param name The name of the application.
      * @param version The version of the application.
-     * @param debugMode Whether the application is in debug mode.
-     * @param width Width of the main window.
-     * @param height Height of the main window.
+     * @param width The width of the application window.
+     * @param height The height of the application window.
+     * @param resourcesFolderPath The path to the resources folder.
+     * @param defaultFontName The name of the default font.
+     * @param defaultFontSize The size of the default font.
+     * @param args The arguments passed to the application.
      *
      * @return True if initialization is successful, false otherwise.
      */
-    static bool initApp(const char* name, const char* version, bool debugMode, int width, int height);
+    static bool initApp(const char* name, const char* version, 
+            int width, int height, const char* resourcesFolderPath, 
+            const char* defaultFontName, int defaultFontSize, char* args[]);
 
     /**
      * @brief Deletes all pointers belongs this application.
@@ -69,11 +75,11 @@ public:
     static int getFPS();
 
     /**
-     * @brief Operates newly created frame
+     * @brief Starts game loop
      * 
      * @param fpsCap set how many times swap buffers for a second. Leave empty or set 0 to not limit fps
      */
-    static void operateFrame(int fpsCap = 0);
+    static void startLoop(int fpsCap = 0);
 
     /**
      * @brief Change the focused window

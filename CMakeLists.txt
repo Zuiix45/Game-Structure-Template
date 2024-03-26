@@ -49,8 +49,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 # Copy data folder to the binary folder
+set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/res)
+
+if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/Debug/res)
+endif()
 
 add_custom_target(copy-runtime-files ALL
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/bin/Debug/data
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_SOURCE_DIR}/bin/Debug/data)
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${OUTPUT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${OUTPUT_DIR})
     

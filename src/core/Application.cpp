@@ -4,9 +4,11 @@
 #include "../sys/Timer.h"
 #include "../sys/Engine.h"
 #include "../sys/Events.h"
+#include "../sys/Events.h"
 #include "../sys/TextRendering.h"
 
 #include <algorithm>
+#include <string>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -27,14 +29,45 @@ bool App::showStats;
 std::shared_ptr<Window> App::focusedWindow;
 GLenum App::currentError;
 
+namespace {
+    /**
+     * @brief Parse args (--help, --version, --debug)
+     */
+    bool parseArgs(char* args[], bool& debugMode, const char* name, const char* version) {
+        for(const char *const *it = args + 1; *it; ++it) {
+            std::string arg = *it;
+            if(arg == "-h" || arg == "--help") {
+                logger::printHelp();
+                return true;
+            }
+
+            else if(arg == "-v" || arg == "--version") {
+                logger::printVersion(name, version);
+                return true;
+            }
+
+            else if(arg == "-d" || arg == "--debug") {
+                debugMode = true;
+                logger::setOutLogFile(false);
+            }
+        }
+
+        return false;
+    }
+}
+
 /* Implementation of Application class */
 
-bool App::initApp(const char* name, const char* version, bool debugMode, int width, int height) {
+bool App::initApp(const char* name, const char* version, 
+            int width, int height, const char* resourcesFolderPath, 
+            const char* defaultFontName, int defaultFontSize, char* args[]) {
+
     if (isInitSuccess) return true;
+
+    if (parseArgs(args, _debugMode, name, version)) return true;
 
     _name = name;
     _version = version;
-    _debugMode = debugMode;
 
     showStats = false;
 
@@ -66,6 +99,12 @@ bool App::initApp(const char* name, const char* version, bool debugMode, int wid
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    // initialize modules
+    callbacks::init(focusedWindow->getGLFWWindow());
+    timer::init();
+    fonts::init(std::string(resourcesFolderPath) + "fonts", defaultFontName, defaultFontSize);
+	engine::init(std::string(resourcesFolderPath) + "images");
+
     // Create timers
     sessionTimer = timer::createTimer();
     frameTimer = timer::createTimer();
@@ -74,10 +113,18 @@ bool App::initApp(const char* name, const char* version, bool debugMode, int wid
     lastFPS = 0;
     checkPoint = 0;
 
+    // Stats panel - semi-transparent background of stats
+	unsigned int statsPanelID = engine::registerObject(1, "stats_panel", make<Object>(ObjectType::HUD_ELEMENT, 0, 0, 300, 135, 0));
+	engine::getObject(statsPanelID)->closeAnimation();
+	engine::getObject(statsPanelID)->setAllColors(0, 0, 0, 0.5);
+	engine::getObject(statsPanelID)->setVisibility(false);
+    
     return isInitSuccess; // Initialization was successful
 }
 
 void App::destroyApp() {
+    fonts::destroy();
+
     timer::killTimer(sessionTimer);
     timer::killTimer(frameTimer);
 
@@ -110,37 +157,49 @@ int App::getFPS() {
     return lastFPS;
 }
 
-void App::operateFrame(int fpsCap) {
-    // Render newly created frame
-    focusedWindow->renderFrame();
+void App::startLoop(int fpsCap) {
+    while (isRunning()) {
+        // fetch events
+        input::pollEvents();
 
-    // update frame count of last second
-    double diff = timer::getTimeDiff(sessionTimer);
+        // update and draw objects
+        engine::drawAllObjects();
+        App::drawStats();
 
-    if (diff - checkPoint >= 1000) {
-        checkPoint = diff;
+        // Render newly created frame
+        focusedWindow->renderFrame();
 
-        lastFPS = currentFPS;
-        currentFPS = 0;
+        // update frame count of last second
+        double diff = timer::getTimeDiff(sessionTimer);
+
+        if (diff - checkPoint >= 1000) {
+            checkPoint = diff;
+
+            lastFPS = currentFPS;
+            currentFPS = 0;
+        }
+
+        currentFPS++;
+
+        // sleep for remaining time to cap frames
+        if (fpsCap != 0 && !focusedWindow->isVsyncOn()) {
+            double maxDelay = 1000.0 / fpsCap;
+
+            timer::delay((maxDelay - timer::getTimeDiff(frameTimer)));
+            timer::resetTimer(frameTimer);
+        }
+
+        // Clear Frame
+        focusedWindow->clearFrame();
+
+        // Check if an OpenGL error occurred
+        GLenum newError = glGetError();
+        if (newError != currentError) logError("OpenGL error occurred", newError);
+        currentError = newError;
+
+        // Benchmark
+        benchmark::countFrames();
     }
-
-    currentFPS++;
-
-    // sleep for remaining time to cap frames
-    if (fpsCap != 0 && !focusedWindow->isVsyncOn()) {
-        double maxDelay = 1000.0 / fpsCap;
-
-        timer::delay((maxDelay - timer::getTimeDiff(frameTimer)));
-        timer::resetTimer(frameTimer);
-    }
-
-    // Clear Frame
-    focusedWindow->clearFrame();
-
-    // Check if an OpenGL error occurred
-    GLenum newError = glGetError();
-    if (newError != currentError) logError("OpenGL error occurred", newError);
-    currentError = newError;
 }
 
 void App::changeFocus(std::shared_ptr<Window> newWindow) {

@@ -104,8 +104,8 @@ void logger::printHelp() {
     std::cerr << "  -d, --debug: Enables debug mode." << std::endl;
 }
 
-void logger::printVersion(const char* name, const char* version, const char* license) {
-    std::cerr << std::endl << name << " ver. "<< version << std::endl << license << std::endl;
+void logger::printVersion(const char* name, const char* version) {
+    std::cerr << std::endl << name << " ver. "<< version << std::endl;
 }
 
 int logger::enterBeforeClose() {
