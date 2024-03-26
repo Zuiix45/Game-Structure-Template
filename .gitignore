@@ -4,3 +4,4 @@ build
 res
 data
 .Game
+src/main.cpp
