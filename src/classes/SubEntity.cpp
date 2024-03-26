@@ -8,5 +8,6 @@ SubEntity::SubEntity() : Object(ObjectType::SUB_ENTITY) {
 
 double SubEntity::getFrameTime() {
     auto elapsedTime = timer::getTimeDiff(loopTimer);
+    timer::resetTimer(loopTimer);
     return elapsedTime;
 }

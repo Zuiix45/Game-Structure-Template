@@ -13,6 +13,7 @@ Entity::Entity() : Object(ObjectType::ENTITY) {
 
 double Entity::getFrameTime() {
     auto elapsedTime = timer::getTimeDiff(loopTimer);
+    timer::resetTimer(loopTimer);
     return elapsedTime;
 }
 
