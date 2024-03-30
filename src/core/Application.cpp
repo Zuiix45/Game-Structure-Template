@@ -100,7 +100,7 @@ bool App::initApp(const char* name, const char* version,
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // initialize modules
-    callbacks::init(focusedWindow->getGLFWWindow());
+    input::init(focusedWindow->getGLFWWindow());
     timer::init();
     fonts::init(std::string(resourcesFolderPath) + "fonts", defaultFontName, defaultFontSize);
 	engine::init(std::string(resourcesFolderPath) + "images");
@@ -114,7 +114,7 @@ bool App::initApp(const char* name, const char* version,
     checkPoint = 0;
 
     // Stats panel - semi-transparent background of stats
-	unsigned int statsPanelID = engine::registerObject(1, "stats_panel", make<Object>(ObjectType::HUD_ELEMENT, 0, 0, 300, 135, 0));
+	unsigned int statsPanelID = engine::registerObject("stats_panel", make<Object>(ObjectType::HUD_ELEMENT, 0, 0, 300, 135, 0));
 	engine::getObject(statsPanelID)->closeAnimation();
 	engine::getObject(statsPanelID)->setAllColors(0, 0, 0, 0.5);
 	engine::getObject(statsPanelID)->setVisibility(false);

@@ -19,7 +19,6 @@
 #include <glad/glad.h>
 
 namespace {
-    std::multimap<unsigned int, unsigned int> layers; // layer, object id
     std::map<unsigned int, cast<Object>> objectMap; // object id, object pointer
     std::map<std::string, unsigned int> nameToID; // name, object id
     std::map<unsigned int, std::string> idToName; // object id, name
@@ -27,7 +26,8 @@ namespace {
 
     std::vector<std::shared_ptr<Buffers>> bufferList;
 
-    std::shared_ptr<Camera> mainCamera;
+    std::shared_ptr<Camera> currentCamera;
+    std::shared_ptr<Scene> currentScene;
 }
 
 void engine::init(const std::string& imagesPath) {
@@ -46,12 +46,11 @@ void engine::init(const std::string& imagesPath) {
     }
 
     // create default camera
-    mainCamera = std::make_shared<Camera>(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f);
+    currentCamera = std::make_shared<Camera>(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f);
 }
 
-unsigned int engine::registerObject(unsigned int layer, const std::string& objName, cast<Object> object) {
+unsigned int engine::registerObject(const std::string& objName, cast<Object> object) {
     unsigned int objID = objectMap.size() + 1;// create unique id
-    layers.insert(std::pair<unsigned int, unsigned int>(layer, objID));
 
     objectMap.insert(std::pair<unsigned int, cast<Object>>(objID, object));
 
@@ -85,8 +84,15 @@ std::string engine::getObjectName(unsigned int objID) {
 }
 
 void engine::drawAllObjects() {
+    // rendering queue
+    auto layers = currentScene->getRenderingQueue();
+
     // calculate view matrix
-    mainCamera->calculateViewMatrix();
+    currentCamera->calculateViewMatrix();
+
+    // events and update for scene
+    currentScene->events();
+    currentScene->update(currentScene->getFrameTime());
 
     // reverse iterate through layers, so that the last(lower value) layer is drawn firsts
     for (auto i = layers.rbegin(); i != layers.rend(); i++) {
@@ -114,7 +120,7 @@ void engine::drawAllObjects() {
             }
         }
 
-        obj->draw(App::getFocusedWindow(), mainCamera);
+        obj->draw(App::getFocusedWindow(), currentCamera);
     }
 }
 
@@ -128,5 +134,7 @@ std::vector<std::string> engine::convertSpriteNameToList(const std::string& spri
     return result;
 }
 
-void engine::setCamera(cast<Camera> camera) { mainCamera = camera; }
-cast<Camera> engine::getCamera() { return mainCamera; }
+void engine::setCamera(cast<Camera> camera) { currentCamera = camera; }
+cast<Camera> engine::getCamera() { return currentCamera; }
+void engine::setScene(cast<Scene> scene) { currentScene = scene; }
+cast<Scene> engine::getScene() { return currentScene; }

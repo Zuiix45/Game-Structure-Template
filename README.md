@@ -40,7 +40,7 @@ cmake --build .
 
 5. **Create your own game:** Use built-in systems and components to create a game. You don't have involve any other folders except your game folder
 
-6. ***DON'T forget to check out [example branches](https://github.com/Zuiix45/Game-Structure-Template/tree/example-1) and [documents](https://github.com/Zuiix45/Game-Structure-Template/tree/master/docs).***
+6. ***DON'T forget to check out [example branches](https://github.com/Zuiix45/Game-Structure-Template/tree/example-1) and [documents](https://docs.google.com/document/d/1-xHisD3rndT31Uj1_URGL3GEwytmkYkRCA825woLIGc/edit?usp=sharing).***
 
 7. ***Please let me know if you have suggestions or issues.***
 
