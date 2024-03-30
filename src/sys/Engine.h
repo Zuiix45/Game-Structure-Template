@@ -2,7 +2,9 @@
 
 #include "../util/Object.h"
 #include "../util/Window.h"
+
 #include "../classes/Camera.h"
+#include "../classes/Scene.h"
 
 #include <vector>
 #include <memory>
@@ -22,28 +24,32 @@ typedef std::vector<std::string> SpriteList;
  */
 namespace engine {
     /**
-     * @brief This namespace contains functions and utilities for managing the game engine.
-     */
-    
-    /**
-     * @brief This function initializes the engine and performs any necessary setup.
-     * 
-     * @param placeholderImagePath The path of the placeholder image.
+     * @brief The engine namespace contains functions and classes related to the game engine.
      */
     void init(const std::string& placeholderImagePath);
 
     /**
-     * @brief Creates an object in the specified layer.
+     * @brief Registers an object with the specified name and object.
      * 
-     * @param layer The layer in which the object will be created.
      * @param objName The name of the object.
      * @param object The object to be created.
      * @return The unique identifier of the created object.
      */
-    unsigned int registerObject(unsigned int layer, const std::string& objName, cast<Object> object);
+    unsigned int registerObject(const std::string& objName, cast<Object> object);
 
+    /**
+     * @brief Retrieves the total count of registered objects.
+     * 
+     * @return The total count of registered objects.
+     */
     unsigned int getTotalObjectCount();
 
+    /**
+     * @brief Retrieves the buffers of the specified type.
+     * 
+     * @param bufferType The type of the buffers to retrieve.
+     * @return A shared pointer to the buffers of the specified type.
+     */
     std::shared_ptr<Buffers> getBuffers(unsigned int bufferType);
 
     /**
@@ -71,9 +77,7 @@ namespace engine {
     std::string getObjectName(unsigned int objID);
 
     /**
-     * @brief Draws all objects on the screen. 
-     * This function should be called every frame.
-     * All parameters will be normalized relative to window boundaries.
+     * @brief Draws all objects on the screen. This function will be automatically called by the Application.
      */
     void drawAllObjects();
 
@@ -93,7 +97,31 @@ namespace engine {
      */
     std::vector<std::string> convertSpriteNameToList(const std::string& spriteName);
 
+    /**
+     * @brief Sets the camera for the scene.
+     * 
+     * @param camera The camera to set.
+     */
     void setCamera(cast<Camera> camera);
 
+    /**
+     * @brief Retrieves the camera for the scene.
+     * 
+     * @return The camera for the scene.
+     */
     cast<Camera> getCamera();
+
+    /**
+     * @brief Sets the scene for the game.
+     * 
+     * @param scene The scene to set.
+     */
+    void setScene(cast<Scene> scene);
+
+    /**
+     * @brief Retrieves the current scene.
+     * 
+     * @return The current scene.
+     */
+    cast<Scene> getScene();
 }

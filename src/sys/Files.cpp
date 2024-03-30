@@ -28,7 +28,8 @@ namespace {
 
         data.erase(data.begin(), data.begin()+data.find(delimiter)+1);
 
-        if (data.find(delimiter) != std::string::npos) splitTwice(vect, data, delimiter);
+        if (data.find(delimiter) != std::string::npos) 
+            splitTwice(vect, data, delimiter);
     }
 }
 
@@ -42,8 +43,10 @@ void files::writeFile(const std::string& mPath, const std::string& data, bool ap
     std::string dirPath = path.substr(0, path.find_last_of('\\'));
     std::filesystem::create_directories(dirPath);
 
-    if (append) file.open(path, std::ios::app);
-    else file.open(path, std::ios::out);
+    if (append) 
+        file.open(path, std::ios::app);
+    else 
+        file.open(path, std::ios::out);
 
     // Write data to the file
     std::istringstream iss(data);
@@ -66,7 +69,8 @@ std::string files::readFile(const std::string& mPath) {
         // Open the file for reading
         file.open(path.c_str());
 
-        if (!file.is_open()) logError("Failed to open file: " + path, FILE_NOT_FOUND);
+        if (!file.is_open()) 
+            logError("Failed to open file: " + path, FILE_NOT_FOUND);
 
         std::string data;
         std::string line;
@@ -242,7 +246,8 @@ std::vector<Image> loadSpriteSheet(const std::string& path, int spriteWidth, int
 
     Image spriteSheet = files::loadImage(path, flip);
 
-    if (!spriteSheet.isLoaded) return sprites;
+    if (!spriteSheet.isLoaded) 
+        return sprites;
 
     for (int i = 0; i < spriteCount; i++) {
         Image sprite;

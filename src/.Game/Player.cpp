@@ -23,7 +23,7 @@ Player::Player(float x, float y, float width, float height, float baseSpeed) : b
     spritesStand.push_back("playerstand_0_1");
     spritesStand.push_back("playerstand_0_2");
 
-    animStand = make<Animation>(6, 1);
+    animStand = make<Animation>(6, 1); // fps, speed
     animStand->loadKeyFrames(spritesStand, false);
     animStand->loop();
 
@@ -79,7 +79,7 @@ void Player::update(double elapsedTime) {
 
 void Player::events() {
     if (input::isPressedOrHeld(keyLeft) && !isJumping) {
-        // player moves lefts
+        // player moves left
         setVelocityX(-baseSpeed);
         setAnimation(animWalk);
         flipHorizontal();
