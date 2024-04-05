@@ -1,26 +1,71 @@
 #include "Object.h"
 
 #include "../sys/Logger.h"
-#include "../sys/Timer.h"
+#include "../sys/Engine.h"
 
-#include "gl/DefaultShaders.h"
+#include "../core/Application.h"
+
+#include "renderer/DefaultShaders.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Object::Object(float x, float y, float width, float height, float angle) 
-            : x(x), y(y), width(width), height(height), angle(angle) {
+Object::Object(ObjectType type, float x, float y, float width, float height, float angle) 
+            : type(type), x(x), y(y), width(width), height(height), angle(angle) {
 
-    topLeftColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    topRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    bottomLeftColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
-    bottomRightColor = glm::vec4(255.0f, 255.0f, 255.0f, 1.0f);
+    createVertexData();
+    createIndexData();
 
     startTimerID = timer::createTimer();
 }
 
+    animationClosed = false;
+    visible = true;
+    affectedByCamera = false;
+    isAnimationFlippedHorizontal = false;
+    isAnimationFlippedVertical = false;
+
+    setBuffers(engine::getBuffers(RECTANGULAR_BUFFERS));
+    setShaders(defaultVertexShaderSource, defaultFragmentShaderSource);
+}
+
 Object::~Object() {
     timer::killTimer(startTimerID);
+}
+
+void Object::draw(std::shared_ptr<Window> window, std::shared_ptr<Camera> camera) {
+    if (!visible) return;
+
+    bool isAnimationStepUp = false;
+
+    if (isAnimationValid() && !animationClosed) {
+        animation.value()->step();
+        isAnimationStepUp = true;
+    }
+
+    if (buffers.has_value() && shaders.has_value()) {
+        // prepare shaders for drawing
+        shaders.value()->activate();
+        glm::mat4 model = getModelMatrix(window->getWidth(), window->getHeight());
+        glm::mat4 view = window->getProjectionMatrix();
+        shaders.value()->setUniform("u_Model", (float*)&model, SHADER_MAT4);
+        shaders.value()->setUniform("u_View", (float*)&view, SHADER_MAT4);
+
+        if (affectedByCamera) {
+            glm::mat4 view = camera->getViewMatrix();
+            glm::mat4 projection = camera->getProjectionMatrix();
+            shaders.value()->setUniform("u_View", (float*)&view, SHADER_MAT4);
+            shaders.value()->setUniform("u_Projection", (float*)&projection, SHADER_MAT4);
+        }
+
+        // pass data to vram and draw
+        buffers.value()->bind();
+        buffers.value()->setVertexData(vertices, indices);
+        buffers.value()->drawElements(GL_TRIANGLES);
+        buffers.value()->unbind();
+    }
+
+    if (isAnimationStepUp) { animation.value()->deactivate(); }
 }
 
 float Object::getX() const { return x; }
@@ -40,28 +85,8 @@ std::shared_ptr<float> Object::getBounds() const {
     return std::make_shared<float>(*bounds);
 }
 
-glm::vec4 Object::getColor(unsigned int corner) const {
-    switch (corner) {
-        case TOP_LEFT_CORNER:
-            return topLeftColor;
-            break;
-        case TOP_RIGHT_CORNER:
-            return topRightColor;
-            break;
-        case BOTTOM_LEFT_CORNER:
-            return bottomLeftColor;
-            break;
-        case BOTTOM_RIGHT_CORNER:
-            return bottomRightColor;
-            break;
-        case ALL_CORNERS:
-            return topLeftColor;
-            break;
-        default:
-            logError("Invalid corner specified", 0);
-            return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            break;
-    }
+glm::vec4 Object::getColor(unsigned int vertexIndex) const {
+    return vertices.at(vertexIndex).color;
 }
 
 void Object::setX(float x) { this->x = x; }
@@ -70,85 +95,156 @@ void Object::setRotation(float angle) { this->angle = angle; }
 void Object::setWidth(float width) { this->width = width; }
 void Object::setHeight(float height) { this->height = height; }
 
-void Object::setColor(float r, float g, float b, float a, unsigned int corner) {
-    switch (corner) {
-        case TOP_LEFT_CORNER:
-            topLeftColor = glm::vec4(r, g, b, a);
-            break;
-        case TOP_RIGHT_CORNER:
-            topRightColor = glm::vec4(r, g, b, a);
-            break;
-        case BOTTOM_LEFT_CORNER:
-            bottomLeftColor = glm::vec4(r, g, b, a);
-            break;
-        case BOTTOM_RIGHT_CORNER:
-            bottomRightColor = glm::vec4(r, g, b, a);
-            break;
-        case ALL_CORNERS:
-            topLeftColor = glm::vec4(r, g, b, a);
-            topRightColor = glm::vec4(r, g, b, a);
-            bottomLeftColor = glm::vec4(r, g, b, a);
-            bottomRightColor = glm::vec4(r, g, b, a);
-            break;
-        default:
-            logError("Invalid corner specified", 0);
-            break;
+void Object::scale(float factor) {
+    width *= factor;
+    height *= factor;
+}
+
+void Object::setColor(float r, float g, float b, float a, unsigned int vertexIndex) {
+    vertices.at(vertexIndex).color = glm::vec4(r/255.0f, g/255.0f, b/255.0f, a);
+}
+
+void Object::setAllColors(float r, float g, float b, float a) {
+    for (int i = 0; i < vertices.size(); i++) {
+        setColor(r, g, b, a, i);
     }
 }
 
-glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
-    // Normalize Values
-    float normalizedX = (x * 2 + width - windowWidth) / windowWidth;
-    float normalizedY = (-y * 2 - height + windowHeight) / windowHeight;
-    float normalizedScaleX = width / (windowWidth/2.0f);
-    float normalizedScaleY = height / (windowHeight/2.0f);
+void Object::loadAnimation(std::vector<std::string> paths, int fps, double speed, bool flip) {
+    animation = std::make_unique<Animation>(fps, speed);
+    animation.value()->loadKeyFrames(paths, flip);
+}
 
+void Object::createAnimation(std::vector<unsigned int> keyframes, int fps, double speed) {
+    animation = std::make_unique<Animation>(fps, speed);
+    animation.value()->setKeyFrames(keyframes);
+}
+
+void Object::setAnimation(std::shared_ptr<Animation> newAnimation) {
+    animation.emplace(newAnimation);
+}
+
+bool Object::isAnimationValid() {
+    if (animation == nullptr) return false;
+    if (!animation.has_value()) return false;
+    if (animation.value()->isLoadedSuccessfully()) return true;
+    
+    return false;
+}
+
+void Object::closeAnimation(bool loadDefaultShaders) {
+    animationClosed = true;
+
+    if (loadDefaultShaders) {
+        auto vertexShader = affectedByCamera ? defaultCameraVertexShaderSource : defaultVertexShaderSource;
+        auto fragmentShader = animationClosed ? defaultNoTextureFragmentShaderSource : defaultFragmentShaderSource;
+
+        setShaders(vertexShader, fragmentShader);
+    }
+}
+
+void Object::openAnimation(bool loadDefaultShaders) {
+    animationClosed = false;
+
+    if (loadDefaultShaders) {
+        auto vertexShader = affectedByCamera ? defaultCameraVertexShaderSource : defaultVertexShaderSource;
+        auto fragmentShader = animationClosed ? defaultNoTextureFragmentShaderSource : defaultFragmentShaderSource;
+
+        setShaders(vertexShader, fragmentShader);
+    }
+}
+
+void Object::flipVertical() {
+    if (!isAnimationFlippedVertical) {
+        for (int i = 0; i < vertices.size(); i++) {
+            vertices.at(i).texCoord.y = 1.0f - vertices.at(i).texCoord.y;
+        }
+
+        isAnimationFlippedVertical = true;
+    }
+}
+
+void Object::flipHorizontal() {
+    if (!isAnimationFlippedHorizontal) {
+        for (int i = 0; i < vertices.size(); i++) {
+            vertices.at(i).texCoord.x = 1.0f - vertices.at(i).texCoord.x;
+        }
+
+        isAnimationFlippedHorizontal = true;
+    }
+}
+
+void Object::resetVerticalFlip() {
+    if (isAnimationFlippedVertical) {
+        for (int i = 0; i < vertices.size(); i++) {
+            vertices.at(i).texCoord.y = 1.0f - vertices.at(i).texCoord.y;
+        }
+
+        isAnimationFlippedVertical = false;
+    }
+}
+
+void Object::resetHorizontalFlip() {
+    if (isAnimationFlippedHorizontal) {
+        for (int i = 0; i < vertices.size(); i++) {
+            vertices.at(i).texCoord.x = 1.0f - vertices.at(i).texCoord.x;
+        }
+
+        isAnimationFlippedHorizontal = false;
+    }
+}
+
+void Object::setBuffers(std::shared_ptr<Buffers> mBuffers) {
+    buffers = mBuffers;
+}
+
+void Object::setShaders(const char* vertexShaderSource, const char* fragmentShaderSource) {
+    shaders = std::make_shared<Shaders>(vertexShaderSource, fragmentShaderSource);
+}
+
+glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
     // Create Transformation Matrix
+    float scaleX = width / (windowWidth/2.0f);
+    float scaleY = height / (windowHeight/2.0f);
+
     glm::mat4 model(1.0f);
-    model = glm::translate(model, glm::vec3(normalizedX, normalizedY, 1.0f));
-    model = glm::scale(model, glm::vec3(normalizedScaleX, normalizedScaleY, 1.0f));
+    model = glm::translate(model, glm::vec3(x + width/2.0f, y + height/2.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
     model = glm::rotate(model, glm::radians(-angle), glm::vec3(0.0f, 0.0f, 1.0f));
 
     return model;
 }
 
-std::vector<Vertex> Object::getVertices() const {
-    std::vector<Vertex> vertices;
-
-    glm::vec4 normalizedTopLeftColor = glm::vec4(topLeftColor.r/255.0f, topLeftColor.g/255.0f, topLeftColor.b/255.0f, topLeftColor.a);
-    glm::vec4 normalizedTopRightColor = glm::vec4(topRightColor.r/255.0f, topRightColor.g/255.0f, topRightColor.b/255.0f, topRightColor.a);
-    glm::vec4 normalizedBottomLeftColor = glm::vec4(bottomLeftColor.r/255.0f, bottomLeftColor.g/255.0f, bottomLeftColor.b/255.0f, bottomLeftColor.a);
-    glm::vec4 normalizedBottomRightColor = glm::vec4(bottomRightColor.r/255.0f, bottomRightColor.g/255.0f, bottomRightColor.b/255.0f, bottomRightColor.a);
-
-    vertices.push_back({glm::vec3(-0.5f, -0.5f, 0.0f), normalizedTopLeftColor, glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(0.5f, -0.5f, 0.0f), normalizedTopRightColor, glm::vec2(1.0f, 0.0f)});
-    vertices.push_back({glm::vec3(0.5f, 0.5f, 0.0f), normalizedBottomLeftColor, glm::vec2(1.0f, 1.0f)});
-    vertices.push_back({glm::vec3(-0.5f, 0.5f, 0.0f), normalizedBottomRightColor, glm::vec2(0.0f, 1.0f)});
-
-    return vertices;
+void Object::createVertexData() {
+    // vertex position, color, texture coordinates
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
 }
 
-std::vector<unsigned int> Object::getIndices() const {
-    std::vector<unsigned int> indices = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-    return indices;
+void Object::createIndexData() {
+    //tell openGL how to connect vertices
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(0);
 }
 
-double Object::getElapsedTime() const {
-    return timer::getTimeDiff(startTimerID);
+void Object::effectByCamera(bool effect) {
+    affectedByCamera = effect;
+
+    auto vertexShader = affectedByCamera ? defaultCameraVertexShaderSource : defaultVertexShaderSource;
+    auto fragmentShader = animationClosed ? defaultNoTextureFragmentShaderSource : defaultFragmentShaderSource;
+
+    setShaders(vertexShader, fragmentShader);
 }
 
-void Object::show() {
-    visible = true;
-}
-
-void Object::hide() {
-    visible = false;
-}
-
-bool Object::isVisible() const {
-    return visible;
-}
+void Object::setVisibility(bool newVisibility) { visible = newVisibility; }
+void Object::setID(unsigned int newID) { id = newID; }
+bool Object::isVisible() const { return visible; }
+bool Object::isAffectedByCamera() const { return affectedByCamera; }
+ObjectType Object::getType() const { return type; }
+unsigned int Object::getID() const { return id; }

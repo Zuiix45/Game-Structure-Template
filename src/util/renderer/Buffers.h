@@ -46,12 +46,14 @@ public:
      * @param vertices The vector of vertices to set.
      * @param indices The vector of indices to set.
      */
-    void setVertexData(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
 
     /**
      * @brief Draws the elements using the buffer data.
+     * 
+     * @param glDrawType The type of draw to use. GL_TRIANGLES, GL_LINES, etc.
      */
-    void drawElements() const;
+    void drawElements(int glDrawType) const;
 
 private:
     unsigned int m_vao;

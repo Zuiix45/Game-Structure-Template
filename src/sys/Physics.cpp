@@ -1,6 +1,19 @@
 #include "Physics.h"
 
-bool physics::isColliding(Object* object1, Object* object2) {
+#include "Engine.h"
+
+#include "../classes/Entity.h"
+#include "../util/Object.h"
+
+namespace{
+    float gravity = 0.0f;
+}
+
+bool physics::isColliding(unsigned int objectID1, unsigned int objectID2) {
+
+    cast<Object> object1 = engine::getObject(objectID1);
+    cast<Object> object2 = engine::getObject(objectID2);
+
     float x1 = object1->getX();
     float y1 = object1->getY();
     float width1 = object1->getWidth();
@@ -18,3 +31,29 @@ bool physics::isColliding(Object* object1, Object* object2) {
 
     return false;
 }
+
+void physics::move(unsigned int entityID, double elapsedTime) {
+    cast<Entity> entity = std::dynamic_pointer_cast<Entity>(engine::getObject(entityID));
+
+    entity->setX(entity->getX() + entity->getVelocityX() * elapsedTime);
+    entity->setY(entity->getY() + entity->getVelocityY() * elapsedTime);
+}
+
+void physics::moveWithAngle(unsigned int entityID, double elapsedTime, float baseSpeed) {
+    cast<Entity> entity = std::dynamic_pointer_cast<Entity>(engine::getObject(entityID));
+
+    entity->setVelocityX(baseSpeed * cos(entity->getAngle()));
+    entity->setVelocityY(baseSpeed * sin(entity->getAngle()));
+
+    move(entityID, elapsedTime);
+}
+
+void physics::accelerate(unsigned int entityID, double elapsedTime) {
+    cast<Entity> entity = std::dynamic_pointer_cast<Entity>(engine::getObject(entityID));
+
+    entity->setVelocityX(entity->getVelocityX() + entity->getAccelerationX() * elapsedTime);
+    entity->setVelocityY(entity->getVelocityY() + entity->getAccelerationY() * elapsedTime);
+}
+
+void physics::setGravity(float newGravity) { gravity = newGravity; }
+float physics::getGravity() { return gravity; }

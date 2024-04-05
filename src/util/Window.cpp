@@ -1,7 +1,6 @@
 #include "Window.h"
 
 #include "../sys/Logger.h"
-#include "../sys/Events.h"
 #include "../sys/Files.h"
 
 #include <algorithm>
@@ -9,52 +8,43 @@
 #include <sstream>
 #include <map>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 /* Implementation of Window class */
 
-Window::Window(const char* title, int width, int height, Uint32 flags) {
-    SDL_DisplayMode mode;
-    SDL_GetDesktopDisplayMode(0, &mode);
-
+Window::Window(const char* title, int width, int height) {
+    
     // Create an SDL window with the specified dimensions and title
-    _SDLWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+    _GLFWWindow = glfwCreateWindow(width, height, title, NULL, NULL);
 
-    _location = {mode.w/2 - width/2, mode.h/2 - height/2};
+    glfwSetWindowPos(_GLFWWindow, 300, 300);
+
+    _x = 300;
+    _y = 300;
 
     _width = width;
     _height = height;
 
-    if (_SDLWindow == nullptr) {
-        logError("Window could not be created.", 0);
-        logSDLError();
-        return;
-    }
+    _projectionMatrix = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
-    _SDLGLContext = SDL_GL_CreateContext(_SDLWindow);
-    SDL_GL_MakeCurrent(_SDLWindow, _SDLGLContext);
+    if (!_GLFWWindow) return;
+
+    glfwMakeContextCurrent(_GLFWWindow);
+
+    // load Glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        logError("OpenGL could not initialized correctly. ", OPENGL_INITIALIZATION_ERROR);
 
     // Vsync
     setVsync(1);
-
-    // load Glad
-    if (gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0)
-        logError("OpenGL could not initialized correctly. ", 0);
 }
 
-Window::~Window() {
-    SDL_GL_DeleteContext(_SDLGLContext);
-    SDL_DestroyWindow(_SDLWindow);
-}
-
-void Window::hide() {
-    SDL_HideWindow(_SDLWindow);
-}
-
-void Window::show() {
-    SDL_ShowWindow(_SDLWindow);
-}
+Window::~Window() { glfwDestroyWindow(_GLFWWindow); }
+void Window::hide() { glfwHideWindow(_GLFWWindow); }
+void Window::show() { glfwShowWindow(_GLFWWindow); }
 
 void Window::renderFrame() {
-    SDL_GL_SwapWindow(_SDLWindow);
+    glfwSwapBuffers(_GLFWWindow);
 }
 
 void Window::clearFrame() {
@@ -62,47 +52,68 @@ void Window::clearFrame() {
     int height = getHeight();
 
     glViewport(0, 0, width, height);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Window::setVsync(int interval) {
-    if (interval != 1 && interval != -1 && interval != 0) return;
+void Window::setVsync(bool interval) {
+    glfwSwapInterval(interval);
+    _interval = interval;
+}
 
-    if (SDL_GL_SetSwapInterval(interval))
-        SDL_GL_SetSwapInterval(1);
+void Window::setFullscreen(bool fullscreen, int width, int height) {
+    if (fullscreen) {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+        glfwSetWindowMonitor(_GLFWWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    } else {
+        glfwSetWindowMonitor(_GLFWWindow, NULL, _x, _y, width, height, 0);
+    }
+
+    updateWindowBounds();
 }
 
 void Window::setBounds(int newWidth, int newHeight) {
-    SDL_SetWindowSize(_SDLWindow, newWidth, newHeight);
-    
+    glfwSetWindowSize(_GLFWWindow, newWidth, newHeight);
+
     _width = newWidth;
     _height = newHeight;
+
+    _projectionMatrix = glm::ortho(0.0f, static_cast<float>(newWidth), static_cast<float>(newHeight), 0.0f, -1.0f, 1.0f);
 }
 
 void Window::setLocation(int x, int y) {
-    SDL_SetWindowPosition(_SDLWindow, x, y);
+    glfwSetWindowPos(_GLFWWindow, x, y);
 
-    _location.x = x;
-    _location.y = y;
+    _x = x;
+    _y = y;
 }
 
-bool Window::isVsyncOn() {
-    return SDL_GL_GetSwapInterval() == 0 ? false : true;
+bool Window::isVsyncOn() { return _interval; }
+int Window::getX() { return _x; }
+int Window::getY() { return _y; }
+int Window::getWidth() { return _width; }
+int Window::getHeight() { return _height; }
+
+void Window::updateWindowBounds() {
+    int width, height;
+    glfwGetWindowSize(_GLFWWindow, &width, &height);
+
+    _width = width;
+    _height = height;
+
+    _projectionMatrix = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+
+    int x, y;
+    glfwGetWindowPos(_GLFWWindow, &x, &y);
+
+    _x = x;
+    _y = y;
 }
 
-glm::vec2 Window::getLocation() {
-    return _location;
+glm::mat4 Window::getProjectionMatrix() {
+    return _projectionMatrix;
 }
 
-int Window::getWidth() {
-    return _width;
-}
-
-int Window::getHeight() {
-    return _height;
-}
-
-SDL_Window* Window::getSDLWindow() {
-    return _SDLWindow;
-}
+GLFWwindow* Window::getGLFWWindow() { return _GLFWWindow; }

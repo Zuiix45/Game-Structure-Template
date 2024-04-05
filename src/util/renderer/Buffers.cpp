@@ -52,21 +52,18 @@ void Buffers::unbind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Buffers::setVertexData(std::vector<Vertex> vertices, std::vector<unsigned int> indices) {
-    if (vertices.size() != vertexCount) {
-        logError("Vertex count mismatch: " + std::to_string(vertices.size()) + " != " + std::to_string(vertexCount), 0);
+void Buffers::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    if (vertices.size() == 0 || indices.size() == 0) {
+        logError("Vertices or indices are nullptr", VERTEX_OR_INDEX_NULLPTR);
         return;
     }
-    
-    if (indices.size() != indexCount) {
-        logError("Index count mismatch: " + std::to_string(indices.size()) + " != " + std::to_string(indexCount), 0);
-        return;
-    }
-    
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), &vertices[0]);
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(unsigned int), &indices[0]);
+
+    // TODO: check if vertexCount and indexCount are the same as the size of the vectors
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex), &vertices[0]);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexCount * sizeof(unsigned int), &indices[0]);
 }
 
-void Buffers::drawElements() const {
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+void Buffers::drawElements(int glDrawType) const {
+    glDrawElements(glDrawType, indexCount, GL_UNSIGNED_INT, 0);
 }

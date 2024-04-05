@@ -1,12 +1,10 @@
 {
   "dependencies": [
-    "sdl2",
+    "glfw3",
     "glm",
     "freetype",
     "stb",
     "openal-soft",
-    "zlib",
-    "lua",
-    "luabridge"
+    "zlib"
   ]
 }

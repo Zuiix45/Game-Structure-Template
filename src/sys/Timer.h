@@ -1,9 +1,16 @@
 #pragma once
 
+#include <string>
+
 /**
  * @brief Declarations for timer operations.
  */
 namespace timer {
+    /**
+     * @brief Initializes the timer system.
+     */
+    void init();
+
     /**
      * @brief Create a timer and return its ID.
      * @return The ID of the created timer.
@@ -25,7 +32,7 @@ namespace timer {
     /**
      * @brief Get the time difference (in milliseconds) between the current time and the time associated with the given ID.
      * @param id The ID of the timer.
-     * @return The time difference in seconds.
+     * @return The time difference in milliseconds.
      */
     double getTimeDiff(unsigned int id);
 
@@ -34,4 +41,53 @@ namespace timer {
      * @param milliseconds duration in milliseconds.
      */
     void delay(double milliseconds);
+
+    std::string getOStime();
+}
+
+namespace benchmark {
+    /**
+     * @brief Starts the benchmark timer.
+     */
+    void startBenchmark();
+
+    /**
+     * @brief Ends the benchmark timer
+     */
+    void endBenchmark();
+
+    /**
+     * Returns the duration of the last frame in seconds.
+     *
+     * @return The duration of the last frame in seconds.
+     */
+    double getLastFrameDuration();
+
+    /**
+     * Retrieves the benchmark result.
+     *
+     * This function returns the benchmark result as a double value.
+     * @return The benchmark result as a double value.
+     */
+    double getBenchmarkResult();
+
+    /**
+     * @brief Counts the total number of frames and calculates the average frame time.
+     */
+    void countFrames();
+
+    /**
+     * @brief Returns the average frame time in milliseconds.
+     * @return The average frame time in milliseconds.
+     */
+    double getAverageFrameTime();
+
+    /**
+     * Applies precision to a double value and returns it as a string.
+     *
+     * @param value The double value to apply precision to.
+     * @param precision The number of decimal places to keep.
+     * @return The double value with applied precision as a string.
+     */
+    std::string applyPrecision(double value, int precision);
 }

@@ -4,6 +4,7 @@
 
 #include "DefaultShaders.h"
 
+#include <vector>
 #include <glad/glad.h>
 
 Shaders::Shaders(std::string vertexShaderSource, std::string fragmentShaderSource) {
@@ -50,7 +51,7 @@ void Shaders::setUniform(const char *name, float* value, int type) {
             glUniformMatrix4fv(location, 1, GL_FALSE, (GLfloat*)value);
             break;
         default:
-            logError("Invalid uniform type", 0);
+            logError("Invalid uniform type", INVALID_UNIFORM_TYPE);
             break;
     }
 }
@@ -66,7 +67,7 @@ void Shaders::CompileShaders() {
     m_FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
     if (m_VertexShader == 0 || m_FragmentShader == 0) {
-        logError("Failed to create shaders", 0);
+        logError("Failed to create shaders", SHADER_COMPILATION_ERROR);
         return;
     }
 
@@ -86,15 +87,15 @@ void Shaders::CompileShaders() {
         GLint log_length = 0;
         glGetShaderiv(m_VertexShader, GL_INFO_LOG_LENGTH, &log_length);
 
-        GLchar log[log_length];
+        std::vector<GLchar> log(log_length);
 
-        glGetShaderInfoLog(m_VertexShader, log_length, &log_length, log);
+        glGetShaderInfoLog(m_VertexShader, log_length, &log_length, log.data());
 
         for (int i = 0; i < log_length; i++) {
             if (log[i] == '\n') log[i] = ' ';
         }
 
-        std::string errorMsg = "Vertex shader compilation failed: " + std::string(log);
+        std::string errorMsg = "Vertex shader compilation failed: " + std::string(log.data());
 
         logError(errorMsg, glGetError());
         return;
@@ -105,15 +106,15 @@ void Shaders::CompileShaders() {
         GLint log_length = 0;
         glGetShaderiv(m_FragmentShader, GL_INFO_LOG_LENGTH, &log_length);
 
-        GLchar log[log_length];
+        std::vector<GLchar> log(log_length);
 
-        glGetShaderInfoLog(m_FragmentShader, log_length, &log_length, log);
+        glGetShaderInfoLog(m_FragmentShader, log_length, &log_length, log.data());
 
         for (int i = 0; i < log_length; i++) {
             if (log[i] == '\n') log[i] = ' ';
         }
 
-        std::string errorMsg = "Fragment shader compilation failed: " + std::string(log);
+        std::string errorMsg = "Fragment shader compilation failed: " + std::string(log.data());
 
         logError(errorMsg, glGetError());
         return;

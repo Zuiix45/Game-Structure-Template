@@ -1,3 +1,12 @@
 .vscode
+.vs
 bin
 build
+res
+data
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+src/.Game
+src/main.cpp

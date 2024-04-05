@@ -2,20 +2,19 @@ cmake_minimum_required(VERSION 3.2...3.5)
 
 # Set C++ standard and flags
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stack-protector")
 
 # Use vcpkg toolchain file. This needs to be at the top of the file
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
 set(CMAKE_BUILD_TYPE "Release")
 
-project(Game)
+project(Game VERSION 0.0.0)
 
 # Find required packages
 find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Stb REQUIRED)
-find_package(SDL2 CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 
@@ -42,20 +41,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
 find_path(LUABRIDGE_INCLUDE_DIRS "LuaBridge/Array.h")
 target_include_directories(${PROJECT_NAME} PRIVATE ${LUABRIDGE_INCLUDE_DIRS})
 
-# Link SDL2
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-)
-
-# Link Lua
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LUA_LIBRARIES})
-
-# Link Others
+# Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE
     glm::glm
     Freetype::Freetype
     OpenAL::OpenAL
+    glfw
 )
 
 # Set output directory for the executable
@@ -64,8 +55,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 # Copy data folder to the binary folder
+set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/res)
+
+if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/Debug/res)
+endif()
 
 add_custom_target(copy-runtime-files ALL
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/bin/data
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_SOURCE_DIR}/bin/data)
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${OUTPUT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${OUTPUT_DIR})
     

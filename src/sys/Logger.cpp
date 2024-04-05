@@ -2,27 +2,23 @@
 
 #include <iostream>
 #include <string>
-#include <sstream>
 
 #include "Files.h"
+#include "Timer.h"
 
-#include "../Application.h"
+#include "../core/Application.h"
 
 namespace {
     bool outLogFile = true;
     bool newSessionOpened = false;
 
     // Helper function to parse log messages with file and line information
-    void parseLogWithFileLine(std::string log, const char* file, int line) {
-        std::ostringstream oss;
-
+    void parseLogWithFileLine(const std::string& log, const char* file, int line) {
         /** example: Thu 28 Sep 23:06:49 2023 - Error: error message:1533 
         *             path/to/file:15*/
-        oss << __TIMESTAMP__ << " - " << log << std::endl << "  " << file << ":" << line << std::endl;
+        std::string result = timer::getOStime() + " - " + log + "\n  " + std::string(file) + ":" + std::to_string(line) + "\n";
 
-        std::string result = oss.str();
-
-        if (Application::isDebugging()) {
+        if (App::isDebugging()) {
             std::cout << result << std::endl;
 
             if (outLogFile) {
@@ -31,7 +27,7 @@ namespace {
                     newSessionOpened = true;
                 }
 
-                files::writeFile("./bin/logs/debug_logs.txt", result);
+                files::writeFile("./bin/Debug/logs/debug_logs.txt", result, true);
             }
         }
 
@@ -41,20 +37,16 @@ namespace {
                 newSessionOpened = true;
             }
 
-            files::writeFile("./logs/release_logs.txt", result);
+            files::writeFile("./logs/release_logs.txt", result, true);
         }
     }
 
     // Helper function to parse log messages without file and line information
     void parseLogWithoutFileLine(std::string log) {
-        std::ostringstream oss;
-
         /** example: Thu 28 Sep 23:06:49 2023 - Info: info message */
-        oss << __TIMESTAMP__ << " - " << log << std::endl;
+        std::string result = timer::getOStime() + " - " + log + "\n";
 
-        std::string result = oss.str();
-
-        if (Application::isDebugging()) {
+        if (App::isDebugging()) {
             std::cout << result << std::endl;
 
             if (outLogFile) {
@@ -63,7 +55,7 @@ namespace {
                     newSessionOpened = true;
                 }
 
-                files::writeFile("./bin/logs/debug_logs.txt", result);
+                files::writeFile("./bin/logs/debug_logs.txt", result, true);
             }
         }
 
@@ -73,7 +65,7 @@ namespace {
                 newSessionOpened = true;
             }
             
-            files::writeFile("./logs/release_logs.txt", result);
+            files::writeFile("./logs/release_logs.txt", result, true);
         }
     }
 }
@@ -83,37 +75,42 @@ void logger::setOutLogFile(bool outFile) {
 }
 
 void logger::_logPoint(const char* file, int line) {
-    std::ostringstream oss;
-    oss << "Point logged on: " << file << ":" << line;
+    std::string point = "Point logged on: " + std::string(file) + ":" + std::to_string(line);
 
-    parseLogWithoutFileLine(oss.str());
+    parseLogWithoutFileLine(point);
 }
 
-void logger::_logError(const char* file, int line, std::string error, int code) {
-    std::ostringstream oss;
+void logger::_logError(const char* file, int line, const std::string& error, ErrorCode code) {
+    std::string _error;
 
     if (code != 0)
-        oss << "Error: " << error << ":" << code;
+        _error = "Error: " + error + ":" + std::to_string((int)code);
     else if (code == 0)
-        oss << "Error: " << error;
+         _error = "Error: " + error;
 
-    parseLogWithFileLine(oss.str(), file, line);
+    parseLogWithFileLine(_error, file, line);
 }
 
-void logger::_logInfo(std::string info) {
-    std::ostringstream oss;
-    oss << "Info: " << info;
+void logger::_logInfo(const std::string& info) {
+    std::string _info = "Info: " + info;
 
-    parseLogWithoutFileLine(oss.str());
+    parseLogWithoutFileLine(_info);
 }
 
-void logger::_logSDLError(const char* file, int line) {
-    std::ostringstream oss;
+void logger::printHelp() {
+    std::cerr <<  std::endl << "Command line arguments: " << std::endl;
+    std::cerr << "  -h, --help: Prints help(this) message." << std::endl;
+    std::cerr << "  -v, --version: Prints version info." << std::endl;
+    std::cerr << "  -d, --debug: Enables debug mode." << std::endl;
+}
 
-    const char* error = SDL_GetError();
-    if (error == "") return;
-    
-    oss << "SDL ERROR: " << error << " - "<< file << ":" << line;
+void logger::printVersion(const char* name, const char* version) {
+    std::cerr << std::endl << name << " ver. "<< version << std::endl;
+}
 
-    parseLogWithoutFileLine(oss.str());
+int logger::enterBeforeClose() {
+    std::cerr << "\nPress enter to close the application...";
+    std::cin.get();
+
+    return 0;
 }
