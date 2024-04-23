@@ -62,19 +62,21 @@ Player::Player(float x, float y, float width, float height, float baseSpeed) : b
 }
 
 void Player::update(double elapsedTime) {
-    engine::getCamera()->setXOffset(60);
-    engine::getCamera()->setYOffset(WINDOW_HEIGHT/2 - height/2);
-
-    engine::getCamera()->follow(getID());
-
     physics::accelerate(getID(), elapsedTime);
     physics::move(getID(), elapsedTime);
 
-    if (y > 250) {
-        y = 250; // ground level
+    float groundLevel = obj("ground")->getY();
+
+    if (y > groundLevel - height) {
+        y = groundLevel - height; // ground level
         setVelocityY(0);
         isJumping = false;
     }
+
+    text::setRendererX(500);
+    text::setRendererY(50);
+    text::setRendererScale(0.5f);
+    text::renderText(DEF_FONT, "Player X: " + std::to_string(x) + " Ground X: " + std::to_string(obj("ground")->getX()));
 }
 
 void Player::events() {

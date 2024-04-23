@@ -6,8 +6,8 @@ class Scene {
 public:
     Scene();
 
-    virtual void update(double elapsedTime) = 0;
-    virtual void events() = 0;
+    virtual void update(double elapsedTime) {};
+    virtual void events() {};
 
     /**
      * @brief Returns the elapsed time since the last execution of this object in the last frame.

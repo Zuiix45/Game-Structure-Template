@@ -1,11 +1,9 @@
 #include "Entity.h"
 
-Entity::Entity() : Object(ObjectType::ENTITY) {
-    _velocityX = 0;
-    _velocityY = 0;
-    _accelerationX = 0;
-    _accelerationY = 0;
-    _mass = 1;
+Entity::Entity(float x, float y, float width, float height, float angle) 
+    : Object(ObjectType::ENTITY, x, y, width, height, angle), _velocityX(0), 
+    _velocityY(0), _accelerationX(0), _accelerationY(0), _mass(1) {
+
     loopTimer = timer::createTimer();
 
     effectByCamera(true); // all entities are affected by camera

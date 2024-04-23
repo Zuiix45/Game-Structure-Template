@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../headers.h"
+#include "../util/Object.h"
 
 /**
  * @brief This class represents a entity objects.
@@ -10,10 +10,10 @@
  */
 class Entity : public Object {
 public:
-    Entity();
+    Entity(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f, float angle = 0.0f);
 
-    virtual void update(double elapsedTime) = 0; // override this function to update object
-    virtual void events() = 0; // override this function to handle events
+    virtual void update(double elapsedTime) {}; // override this function to update object
+    virtual void events() {}; // override this function to handle events
 
     /**
      * @brief Returns the elapsed time since the last execution of this object in the last frame.

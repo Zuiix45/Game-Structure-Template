@@ -15,13 +15,9 @@ int main(int argc, char* args[]) {
 	cast<Player> playerObject = make<Player>(0, 0, 80, 80, 0.5);
 	unsigned int playerID = engine::registerObject("player", playerObject);
 
-	unsigned int aid = engine::registerObject("a", make<Object>(ObjectType::OBJECT, 100, 100, 100, 100, 0));
-	engine::getObject(aid)->setAllColors(255, 255, 255, 1);
-	engine::getObject(aid)->closeAnimation();
-	engine::getObject(aid)->effectByCamera(true);
-
 	world->addOBject(1, playerID);
-	world->addOBject(2, aid);
+
+	engine::setScene(world);
 	
 	App::startLoop(0);
 

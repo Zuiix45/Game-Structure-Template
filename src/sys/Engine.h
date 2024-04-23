@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../classes/Entity.h"
+
 #include "../util/Object.h"
 #include "../util/Window.h"
 
@@ -16,6 +18,7 @@
 #define make std::make_shared // usage: cast<Object> obj = make<Object>(60, 60, 60, 60, 60);
 
 #define obj(objectName) engine::getObject(engine::getObjectID(objectName))
+#define ent(entityName) engine::getEntity(engine::getObjectID(entityName))
 
 typedef std::vector<std::string> SpriteList;
 
@@ -59,6 +62,8 @@ namespace engine {
      * @return The object with the specified ID, or nullptr if no object is found.
      */
     cast<Object> getObject(unsigned int objID);
+
+    cast<Entity> getEntity(unsigned int entityID);
 
     /**
      * @brief Retrieves the ID of an object with the specified name.
@@ -124,4 +129,7 @@ namespace engine {
      * @return The current scene.
      */
     cast<Scene> getScene();
+
+    void setObjectColor(unsigned int objID, unsigned int r, unsigned int g, unsigned int b, unsigned int a = 1.0f);
+    void setObjectPosition(unsigned int objID, float x, float y);
 }

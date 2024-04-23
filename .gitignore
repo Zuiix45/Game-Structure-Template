@@ -8,3 +8,5 @@ build
 *.vcxproj.user
 Debug
 Release
+x64
+x86

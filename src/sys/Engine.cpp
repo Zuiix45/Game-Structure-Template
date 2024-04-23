@@ -47,6 +47,9 @@ void engine::init(const std::string& imagesPath) {
 
     // create default camera
     currentCamera = std::make_shared<Camera>(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f);
+
+    // create default scene
+    currentScene = std::make_shared<Scene>();
 }
 
 unsigned int engine::registerObject(const std::string& objName, cast<Object> object) {
@@ -73,6 +76,10 @@ unsigned int engine::getTotalObjectCount() { return objectMap.size(); }
 
 cast<Object> engine::getObject(unsigned int objID) {
     return objectMap[objID];
+}
+
+cast<Entity> engine::getEntity(unsigned int entityID) {
+    return std::dynamic_pointer_cast<Entity>(objectMap[entityID]);
 }
 
 unsigned int engine::getObjectID(const std::string& objName) {
@@ -138,3 +145,12 @@ void engine::setCamera(cast<Camera> camera) { currentCamera = camera; }
 cast<Camera> engine::getCamera() { return currentCamera; }
 void engine::setScene(cast<Scene> scene) { currentScene = scene; }
 cast<Scene> engine::getScene() { return currentScene; }
+
+void engine::setObjectColor(unsigned int objID, unsigned int r, unsigned int g, unsigned int b, unsigned int a) {
+    objectMap[objID]->setAllColors(r, g, b, a);
+}
+
+void engine::setObjectPosition(unsigned int objID, float x, float y) {
+    objectMap[objID]->setX(x);
+    objectMap[objID]->setY(y);
+}

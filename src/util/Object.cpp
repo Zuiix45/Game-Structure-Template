@@ -216,10 +216,10 @@ glm::mat4 Object::getModelMatrix(int windowWidth, int windowHeight) const {
 
 void Object::createVertexData() {
     // vertex position, color, texture coordinates
-    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
-    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
-    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
-    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, -WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)});
+    vertices.push_back({glm::vec3(WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    vertices.push_back({glm::vec3(-WINDOW_WIDTH/4.0f, WINDOW_HEIGHT/4.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
 }
 
 void Object::createIndexData() {

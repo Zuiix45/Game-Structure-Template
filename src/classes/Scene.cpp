@@ -1,11 +1,15 @@
 #include "Scene.h"
 
+#include "../sys/Timer.h"
+
 Scene::Scene() {
-    loopTimer = 0;
+    loopTimer = timer::createTimer();
 }
 
 double Scene::getFrameTime() {
-    return loopTimer;
+    auto elapsedTime = timer::getTimeDiff(loopTimer);
+    timer::resetTimer(loopTimer);
+    return elapsedTime;
 }
 
 void Scene::addOBject(unsigned int layer, unsigned int objID) {

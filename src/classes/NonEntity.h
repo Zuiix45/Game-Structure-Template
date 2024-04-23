@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../headers.h"
+#include "../util/Object.h"
 
 /**
  * @brief This class represents a non-entity objects. 
@@ -12,5 +12,5 @@ class NonEntity : public Object {
 public:
     NonEntity();
 
-    virtual void events() = 0; // override this function to handle events
+    virtual void events() {}; // override this function to handle events
 };

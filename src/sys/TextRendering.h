@@ -2,6 +2,8 @@
 
 #include <string>
 
+#define DEF_FONT 1
+
 namespace fonts {
     void init(const std::string& fontsDirectory, const std::string& defaultFontName, unsigned int defaultFontSize);
     
@@ -19,5 +21,3 @@ namespace text {
 
     void renderText(unsigned int fontID, const std::string& text); // TODO: fix memory allocation
 }
-
-#define DEF_FONT 1
